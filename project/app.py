@@ -3,7 +3,7 @@ from project.video_edit import VideoEditor
 from project.video_content import VideoContentGenerator, VideoContent
 from project.twitch_ids_box_art import games_id
 from project.youtube import upload
-
+from project.transcription import transcription
 class App:
     def __init__(self):
         self.clips_extractor = ClipsExtractor()
@@ -24,8 +24,9 @@ class App:
         self.clips_downloader.download_top_clips(clips)
 
         # Create video compilation
-        file= self.video_editor.create_video_compilation(clips, amount)
+        self.video_editor.create_video_compilation(clips, amount)
 
+        file =transcription()
         # Upload video to Youtube
         self.video_content_generator = VideoContentGenerator(self.clips_extractor)
         
