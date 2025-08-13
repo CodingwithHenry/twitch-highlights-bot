@@ -27,25 +27,40 @@ class VideoContentGenerator:
         return f'Top {len(self.clips_extractor.clips_content)} {self.clips_extractor.clips_content[0].broadcaster_id}\'s highlights of the week'
 
     def generate_description(self):
-        description = f'Top {len(self.clips_extractor.clips_content)} most watched {games_name[self.clips_extractor.clips_content[0].game_id]} Twitch clips \
-from {prev_week_sunday_dBY} to {prev_week_saturday_dBY}. \n \nLanguages: {self.clips_extractor.languages if self.clips_extractor.languages else "All"} \n \nClips:\n'
-        
-        timestamp = 0
-        for clip in self.clips_extractor.clips_content:
-            description += f'{int(timestamp) // 60}:{int(timestamp) % 60:02d} - {clip.title} ({clip.url})\n'
-            timestamp += clip.duration
-
-        description += '\nAll clips in this video were automatically selected based on their popularity. This video was generated and uploaded using a Python script. \
-\nCheck out the source code here: https://github.com/viniciusenari/automated-twitch-clips-youtube-channel, leave a star if you liked it!'
-
-        # remove greather than and less than symbols from description to avoid errors
-        description = description.replace('<', '').replace('>', '')
+        description = (
+    "🔥Like and Subscribe!🔥"
+    "🔥 THE ULTIMATE BATTLEFIELD MOMENTS 🔥\n"
+    "💥 TOP 100 CLIPS from the FIRST Beta Weekend 💥\n"
+    "🎯 Epic plays, funny fails, insane snipes, and jaw-dropping moments!\n\n"
+    "This video is your all-in-one highlight reel of the most talked-about plays from the Battlefield beta launch weekend. "
+    "From clutch squad wipes to unbelievable long-range shots, we've gathered the BEST of the BEST from Twitch and beyond.\n\n"
+    "📅 Event: Battlefield Beta Weekend #1\n"
+    "📹 100 clips ranked by pure viewer hype\n"
+    "🎮 Game: Battlefield (Beta)\n\n"
+    "💬 Tell us your favorite clip in the comments!\n"
+    "👍 Like and subscribe if you enjoyed — it really helps the channel!\n"
+    "🔔 Subscribe for more insane Battlefield highlights!\n\n"
+    
+    "Battlefield Beta highlights\n"
+    "Battlefield epic moments\n"
+    "Battlefield funny moments\n\n"
+    "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n\n"
+    "#Battlefield #BattlefieldBeta #Gaming"
+)
 
         return description
 
     def generate_tags(self):
-        tags = set(['twitch', 'clips', 'highlights', 'livestreaming', 'streaming', 'stream highlights', 'stream clips', 'streaming clips', 'streaming highlights', 'twitch clips', 'twitch highlights', 'twitch streaming', 'twitch stream highlights', 'twitch stream clips', 'twitch streaming clips', 'twitch streaming highlights'])
-            
+        tags = set([
+    'battlefield', 'battlefield 2042', 'battlefield beta', 'battlefield clips', 
+    'battlefield highlights', 'battlefield epic moments', 'battlefield funny moments', 
+    'battlefield gameplay', 'battlefield montage', 'fps gaming', 'twitch', 'clips', 
+    'highlights', 'livestreaming', 'streaming', 'stream highlights', 'stream clips', 
+    'streaming clips', 'streaming highlights', 'twitch clips', 'twitch highlights', 
+    'twitch streaming', 'twitch stream highlights', 'twitch stream clips', 
+    'twitch streaming clips', 'twitch streaming highlights'
+])
+
         for clip in self.clips_extractor.clips_content:
             tags.add(games_name[clip.game_id])
             tags.add(clip.broadcaster_name)

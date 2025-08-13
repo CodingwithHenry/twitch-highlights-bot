@@ -59,7 +59,7 @@ def initialize_upload(youtube, options,filepath):
 
     body = dict(
         snippet=dict(
-            title=options.title,
+            title="Top 100 Battlefield Clips from the first Beta Weekend! #Battlefield6 #Hype",
             description=options.description,
             tags=tags,
             categoryId=options.categoryId

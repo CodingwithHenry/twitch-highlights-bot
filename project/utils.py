@@ -20,7 +20,7 @@ def parsetime_dBY(datetime_object):
     return dt.datetime.strftime(datetime_object, '%d %B, %Y')
 
 prev_week_saturday_rfc = parsetime_rfc(dt.datetime.today().replace(hour=0, minute=0, second=0) )
-prev_week_sunday_rfc = parsetime_rfc((dt.datetime.today()- dt.timedelta(6)).replace(hour = 0, minute = 0, second= 0))
+prev_week_sunday_rfc = parsetime_rfc((dt.datetime.today()- dt.timedelta(7)).replace(hour = 0, minute = 0, second= 0))
 
 prev_week_saturday_dBY = parsetime_dBY(dt.datetime.today().replace(hour=0, minute=0, second=0))
-prev_week_sunday_dBY = parsetime_dBY((dt.datetime.today() - dt.timedelta(6)).replace(hour=0, minute=0, second=0))
+prev_week_sunday_dBY = parsetime_dBY((dt.datetime.today() - dt.timedelta(7)).replace(hour=0, minute=0, second=0))

@@ -24,9 +24,9 @@ class App:
         self.clips_downloader.download_top_clips(clips)
 
         # Create video compilation
-        self.video_editor.create_video_compilation(clips, amount)
+        file=self.video_editor.create_video_compilation(clips, amount)
 
-        file =transcription()
+        #file =transcription()
         # Upload video to Youtube
         self.video_content_generator = VideoContentGenerator(self.clips_extractor)
         
