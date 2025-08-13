@@ -4,11 +4,18 @@ import os
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from project.twitch_api import TwitchAPI
-from project.utils import client_id, client_secret, prev_week_saturday_rfc, prev_week_sunday_rfc
+from project.utils import client_id, client_secret, prev_week_saturday_rfc, prev_week_sunday_rfc, safe_filename
 from project.twitch_ids_box_art import games_id
+import re
+
+
+
+
 
 api = TwitchAPI()
 api.auth(client_id, client_secret)
+
+
 
 class ClipContent:
     def __init__(self, url, broadcaster_id, broadcaster_name, game_id, title, thumbnail_url, duration, path):
@@ -53,7 +60,7 @@ class ClipsExtractor:
                         clip['title'],
                         clip['thumbnail_url'],
                         clip['duration'],
-                        f'files/clips/{clip["title"].replace(" ", "_").replace("/","_").lower()}.mp4'
+                        f'files/clips/{safe_filename(clip["title"])}.mp4'
                     ))
                     if len(self.clips_content) == quantity: break
             params['after'] = response['pagination']['cursor']
@@ -89,7 +96,7 @@ class ClipsDownloader():
         r = requests.get(clip_url)
         if r.headers['Content-Type'] == 'binary/octet-stream':
             if not os.path.exists('files/clips'): os.makedirs('files/clips')
-            with open(clip.path, 'wb') as f:
+            with open(f'files/thumbnails/{safe_filename(clip.title)}.jpg', 'wb') as f:
                 f.write(r.content)
         else:
             print(f'Failed to download clip from thumb: {clip.thumbnail_url}')

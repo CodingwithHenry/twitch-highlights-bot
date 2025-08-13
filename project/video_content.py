@@ -7,12 +7,14 @@ from project.utils import prev_week_saturday_dBY, prev_week_sunday_dBY
 
 class VideoContent:
 
-    def __init__(self, title, description, tags, category_id, privacy_status):
+    def __init__(self, title, description, tags, category_id, privacy_status, keywords):
         self.title = title
         self.description = description
         self.tags = tags
         self.category_id = category_id
         self.privacy_status = privacy_status
+        self.keywords = keywords
+        self.categoryId = 20
 
 class VideoContentGenerator:
 

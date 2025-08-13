@@ -2,7 +2,7 @@ import os
 from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, concatenate_videoclips
 from PIL import Image, ImageDraw, ImageFont
 from project.config import font_clip_name, font_broadcaster, render_settings
-
+from project.utils import safe_filename
 class VideoEditor():
     def __init__(self):
         self.clips = []
@@ -26,11 +26,11 @@ class VideoEditor():
         d.text((100, 1000), broadcaster_name, font=fnt_streamer_name, stroke_width=3, stroke_fill=(0, 0, 0), fill=(255, 255, 255))
         
         if not os.path.exists('files/overlays'): os.makedirs('files/overlays')
-        overlay.save(f'files/overlays/{clip_content.title.replace(" ", "_").replace("/","_").lower()}.png')
+        overlay.save(f'files/overlays/{safe_filename(title)}.png')
     
     def create_video(self, clip_content):
         clip = VideoFileClip(clip_content.path, target_resolution=(1080, 1980))
-        img_clip = ImageClip(f'files/overlays/{clip_content.title.replace(" ", "_").replace("/","_").lower()}.png').set_duration(5)
+        img_clip = ImageClip(f'files/overlays/{safe_filename(clip_content.title)}.png').set_duration(5)
         video = CompositeVideoClip([clip, img_clip])
         return video
 
@@ -42,3 +42,4 @@ class VideoEditor():
         video = concatenate_videoclips(self.clips, method='compose')
         if not os.path.exists('files/youtube'): os.makedirs('files/youtube')
         video.write_videofile(f'files/youtube/video.mp4', fps = render_settings['fps'], codec = render_settings['codec'], threads = render_settings['threads'], preset = render_settings['preset'], bitrate = render_settings['bitrate'])
+        return f'files/youtube/video.mp4'
