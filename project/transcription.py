@@ -3,7 +3,7 @@ import subprocess
 from pathlib import Path
 
 def transcription():
-    model = whisper.load_model("large")
+    model = whisper.load_model("medium")
 
     # Path to your single video
     clip = Path("./files/youtube/video.mp4")

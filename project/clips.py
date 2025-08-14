@@ -74,10 +74,11 @@ class ClipsDownloader():
         option.add_argument("--headless=new")          # headless mode
         option.add_argument("--no-sandbox")            # required on Linux
         option.add_argument("--disable-dev-shm-usage") # avoid /dev/shm issues
-        option.add_argument("--disable-gpu")           # optional, safe to add
+ 
+        option.add_argument("--disable-gpu")  # already in your options
+        option.add_argument("--enable-unsafe-swiftshader")  # optional, safe to add
         # Use a temporary user data directory to avoid conflicts
-        
-        
+       
 
         driver = webdriver.Chrome(options=option)
         driver.get(clip.url)
@@ -122,7 +123,7 @@ class ClipsDownloader():
         r = requests.get(clip.thumbnail_url)
         if not os.path.exists('files/thumbnails'): os.makedirs('files/thumbnails')
         try:
-            with open(f'files/thumbnails/{clip.title.replace(" ", "_").replace("/","_").lower()}.jpg', 'wb') as f:
+            with open(f'files/thumbnails/{safe_filename(clip.title)}.jpg', 'wb') as f:
                 f.write(r.content)
         except:
             print(f'Failed to download thumbnail: {clip.thumbnail_url}')

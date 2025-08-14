@@ -5,9 +5,9 @@ font_thumbnail = "fonts/NotoSans-Black.ttf"
 
 # Rendering settings
 render_settings = {
-    'fps' : 60,
-    'codec' : "mpeg4",
-    'threads' : 8,
-    'preset' : "ultrafast",
-    'bitrate' : '20000k'
+    'fps': 30,
+    'codec': 'h264_nvenc',   # GPU
+    'threads': 4,
+    'preset': 'fast',
+    'bitrate': '8M'
 }
