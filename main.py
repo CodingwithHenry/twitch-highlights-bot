@@ -20,3 +20,6 @@ class TwitchVideoCompiler:
 if __name__ == '__main__':
     main = TwitchVideoCompiler()
     main.parse_and_run_args()
+    
+    
+    

@@ -14,7 +14,7 @@ class App:
         
         print(f"Creating video compilation with game: {game}, amount: {amount}, languages: {languages}")
         game_id = games_id[game]
-
+        
         # Get clips from Twitch
         self.clips_extractor.get_clips(quantity = amount, game_id = game_id, languages=languages)
         clips = self.clips_extractor.clips_content

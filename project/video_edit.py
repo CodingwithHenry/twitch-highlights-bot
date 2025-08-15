@@ -84,7 +84,10 @@ class VideoEditor:
 
         # Cleanup
         for file in temp_files:
-            os.remove(file)
+            try:
+                os.remove(file)
+            except Exception as e:
+                print(f"Error removing file {file}: {e}")
         os.remove(concat_list)
 
         return final_output
