@@ -40,7 +40,7 @@ class VideoEditor:
             "-i", input_video,
             "-i", overlay_image,
             "-filter_complex", "overlay=0:0",
-            "-c:v", "h264_nvenc",  # GPU encoding (NVIDIA)
+            "-c:v", "libx264",  # CPU encoding
             "-preset", render_settings['preset'],
             "-b:v", render_settings['bitrate'],
             "-c:a", "copy",
