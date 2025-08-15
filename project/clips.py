@@ -3,6 +3,9 @@ import requests
 import os
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from project.twitch_api import TwitchAPI
 from project.utils import client_id, client_secret, prev_week_saturday_rfc, prev_week_sunday_rfc, safe_filename
 from project.twitch_ids_box_art import games_id
@@ -84,7 +87,7 @@ class ClipsDownloader():
         driver.get(clip.url)
         time.sleep(1)  # Allow the page to load
 
-        clip_url = driver.find_element("xpath", "//div[@class='Layout-sc-1xcs6mc-0 video-ref']//video").get_property("src")
+        clip_url = WebDriverWait(driver, 10).until( EC.presence_of_element_located((By.TAG_NAME, "video"))).get_property("src")
         driver.quit()
         r = requests.get(clip_url)
 
