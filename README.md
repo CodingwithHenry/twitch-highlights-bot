@@ -36,6 +36,11 @@ Clone this repository:
 ```bash
 git clone https://github.com/viniciusenari/automated-twitch-clips-youtube-channel
 ```
+
+'''
+Install https://ffmpeg.org/download.html on your maschine.
+'''
+
 Create a virtual environment and install the requirements:
 ```bash
 python3 -m venv venv
