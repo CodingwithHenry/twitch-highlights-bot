@@ -31,7 +31,7 @@ def transcription():
         "-i", str(clip).replace("\\", "/"),
         "-vf", f"subtitles={str(srt_file).replace('\\', '/')}:" +
                "force_style='FontName=Verdana,Fontsize=28,PrimaryColour=&H00FFFF00," +
-               "OutlineColour=&H00000000,BorderStyle=1,Outline=3,Shadow=2,MarginV=150'",
+               "OutlineColour=&H00000000,BorderStyle=1,Outline=3,Shadow=2,MarginV=30'",
         "-c:a", "copy",
         str(output_file).replace("\\", "/")
     ])
