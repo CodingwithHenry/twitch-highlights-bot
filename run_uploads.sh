@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VENV_PATH="/path/to/your/venv"
-SCRIPT_PATH="/path/to/main.py"
+VENV_PATH="/home/henry/twitch-highlights-bot/venv"
+SCRIPT_PATH="/home/henry/twitch-highlights-bot/main.py"
 
 source "$VENV_PATH/bin/activate"
 
