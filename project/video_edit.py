@@ -48,6 +48,18 @@ class VideoEditor:
         ]
         subprocess.run(cmd, check=True)
 
+    def fix_clip(self, input_file, output_file):
+        """Normalizes timestamps & framerate to avoid DTS errors."""
+        cmd = [
+            "ffmpeg", "-y",
+            "-i", input_file,
+            "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+            "-c:a", "aac", "-ar", "48000", "-ac", "2",
+            "-fflags", "+genpts", "-r", "30",
+            output_file
+        ]
+        subprocess.run(cmd, check=True)
+        return output_file
 
     def process_clip(self, clip):
         """Processes a single clip and returns its output path."""
@@ -65,8 +77,19 @@ class VideoEditor:
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             futures = {executor.submit(self.process_clip, clip): clip for clip in self.clips}
             for future in as_completed(futures):
-                temp_files.append(future.result())
+                processed = future.result()
 
+                # Normalize timestamps
+                fixed = processed.replace(".mp4", "_fixed.mp4")
+                self.fix_clip(processed, fixed)
+
+                temp_files.append(fixed)
+
+        # remove the original processed file to save space
+        try:
+            os.remove(processed)
+        except Exception as e:
+            print(f"Error removing temp file {processed}: {e}")
         # Create concat list
         concat_list = "concat_list.txt"
         with open(concat_list, "w") as f:
