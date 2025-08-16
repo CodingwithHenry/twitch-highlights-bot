@@ -25,16 +25,19 @@ def transcription():
             f.write(f"{text}\n\n")
 
     # Step 3: Burn subtitles into the video
+    # Step 3: Burn subtitles into the video
     output_file = clip.with_name("video_subtitled.mp4")
     subprocess.run([
         "ffmpeg",
         "-i", str(clip).replace("\\", "/"),
         "-vf", f"subtitles={str(srt_file).replace('\\', '/')}:" +
-               "force_style='FontName=Verdana,Fontsize=28,PrimaryColour=&H00FFFF00," +
-               "OutlineColour=&H00000000,BorderStyle=1,Outline=3,Shadow=2,MarginV=30'",
-        "-c:a", "copy",
+            "force_style='FontName=Verdana,Fontsize=28,PrimaryColour=&H00FFFF00," +
+            "OutlineColour=&H00000000,BorderStyle=1,Outline=3,Shadow=2,MarginV=30'",
+        "-c:v", "libx264", "-crf", "23", "-preset", "fast",  # re-encode video
+        "-c:a", "copy",                                      # keep audio
         str(output_file).replace("\\", "/")
-    ])
+])
+
 
     print("✅ Subtitles burned into video!")
     return output_file

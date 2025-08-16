@@ -34,19 +34,20 @@ class VideoEditor:
         return overlay_path
 
     def overlay_video(self, input_video, overlay_image, output_video):
-        """Overlays a PNG onto a video using ffmpeg + GPU acceleration."""
+        """Overlays a PNG onto a video using ffmpeg."""
         cmd = [
             "ffmpeg", "-y",
             "-i", input_video,
             "-i", overlay_image,
             "-filter_complex", "overlay=0:0",
-            "-c:v", "libx264",  # CPU encoding
+            "-c:v", "libx264",         # re-encode video
             "-preset", render_settings['preset'],
             "-b:v", render_settings['bitrate'],
-            "-c:a", "copy",
+            "-c:a", "copy",            # keep audio untouched
             output_video
         ]
         subprocess.run(cmd, check=True)
+
 
     def process_clip(self, clip):
         """Processes a single clip and returns its output path."""
