@@ -4,6 +4,9 @@ from project.video_content import VideoContentGenerator, VideoContent
 from project.twitch_ids_box_art import games_id
 from project.youtube import upload
 from project.transcription import transcription
+from project.utils import get_description
+import os
+import glob
 class App:
     def __init__(self):
         self.clips_extractor = ClipsExtractor()
@@ -29,19 +32,34 @@ class App:
         file =transcription()
         # Upload video to Youtube
         self.video_content_generator = VideoContentGenerator(self.clips_extractor)
-        
+
+        title, description, tags = get_description(game)  # load description from description json
         # Create video content
         video_content = VideoContent(
-            title = self.video_content_generator.generate_title(),
-            description = self.video_content_generator.generate_description(),
-            tags = self.video_content_generator.generate_tags(),
-            category_id = '20', # Gaming
-            privacy_status= 'public',
-            keywords = None
+            title=title,
+            description=description,
+            tags=tags,
+            category_id='20',  # Gaming
+            privacy_status='public',
+            keywords=None
         )
 
         # Create thumbnail
         self.video_content_generator.generate_thumbnail()
 
         # Upload video to Youtube
-        upload(video_content, file)
+        upload(video_content, file, game)
+
+
+# delete clips and thumbnails etc.        
+        main_folder = "files"
+
+
+        for subfolder in os.listdir(main_folder):
+            subfolder_path = os.path.join(main_folder, subfolder)
+            if os.path.isdir(subfolder_path):
+                # Find all files in the subfolder
+                for file_path in glob.glob(os.path.join(subfolder_path, "*")):
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+                        print(f"Deleted: {file_path}")

@@ -8,7 +8,7 @@ from project.utils import prev_week_saturday_dBY, prev_week_sunday_dBY,  safe_fi
 class VideoContent:
 
     def __init__(self, title, description, tags, category_id, privacy_status, keywords):
-        self.title = "HOLY SHIT what is going on in Battlefield 6? - Best Moments"
+        self.title = title
         self.description = description
         self.tags = tags
         self.category_id = category_id

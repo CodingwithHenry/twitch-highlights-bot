@@ -13,6 +13,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import pickle
 import argparse
+from pathlib import Path
+
+THUMBNAIL_PATH = Path("files") / "youtube" / "thumbnail.png"
 
 # HTTP settings
 httplib2.RETRIES = 1
@@ -34,9 +37,14 @@ YOUTUBE_API_VERSION = "v3"
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
-def get_authenticated_service():
-    creds = None
-    token_file = "token.pickle"
+def get_authenticated_service(game):
+
+    if game == 'BATTLEFIELD 6':
+        creds = None
+        token_file = "bf6_token.pickle"
+    if game == 'League of Legends':
+        creds = None
+        token_file = "lol_token.pickle"
 
     if os.path.exists(token_file):
         with open(token_file, 'rb') as token:
@@ -53,8 +61,16 @@ def get_authenticated_service():
 
     return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, credentials=creds)
 
+def upload_thumbnail(self, video_id, file_path):
+        print('Uploading thumbnail...')
+        request = self.youtube.thumbnails().set(
+            videoId=video_id,
+            media_body=file_path
+        )
+        response = request.execute()
+        print(response)
 
-def initialize_upload(youtube, options,filepath):
+def initialize_upload(youtube, options, filepath):
     tags = options.keywords.split(",") if options.keywords else None
 
     body = dict(
@@ -62,7 +78,7 @@ def initialize_upload(youtube, options,filepath):
             title=options.title,
             description=options.description,
             tags=tags,
-            categoryId=options.categoryId
+            categoryId=options.category_id
         ),
         status=dict(
             privacyStatus=options.privacy_status
@@ -75,10 +91,23 @@ def initialize_upload(youtube, options,filepath):
         media_body=MediaFileUpload(filepath, chunksize=-1, resumable=True)
     )
 
-    resumable_upload(insert_request)
+    # Upload video and get video ID
+    video_id = resumable_upload(insert_request, youtube)
 
+    # Upload thumbnail
+    if THUMBNAIL_PATH.exists():
+        print("Uploading thumbnail...")
+        youtube.thumbnails().set(
+            videoId=video_id,
+            media_body=str(THUMBNAIL_PATH)
+        ).execute()
+        print("✅ Thumbnail uploaded!")
+    else:
+        print(f"Thumbnail file not found at {THUMBNAIL_PATH}")
 
-def resumable_upload(insert_request):
+    return video_id
+
+def resumable_upload(insert_request,youtube):
     response = None
     error = None
     retry = 0
@@ -90,6 +119,9 @@ def resumable_upload(insert_request):
             if response is not None:
                 if 'id' in response:
                     print(f"Video id '{response['id']}' was successfully uploaded.")
+                    return response['id']
+
+                    
                 else:
                     sys.exit(f"The upload failed with an unexpected response: {response}")
         except HttpError as e:
@@ -112,10 +144,10 @@ def resumable_upload(insert_request):
             time.sleep(sleep_seconds)
             error = None
 
-def upload(args,filepath):
-    youtube = get_authenticated_service()
+def upload(args, filepath, game):
+    youtube = get_authenticated_service(game)
     try:
-        initialize_upload(youtube, args,filepath)
+        initialize_upload(youtube, args, filepath)
     except HttpError as e:
         print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
 

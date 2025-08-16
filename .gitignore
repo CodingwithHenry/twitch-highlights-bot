@@ -167,3 +167,5 @@ files
 secrets.json
 client_secrets.json
 token.pickle
+bf6_token.pickle
+lol_token.pickle
