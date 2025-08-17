@@ -1,6 +1,11 @@
 from project.app import App
 import argparse
+import os
+import platform
 
+if platform.system() == "Linux":
+    os.chdir("/home/henry/twitch-highlights-bot")
+    
 class TwitchVideoCompiler:
     def __init__(self):
         pass
