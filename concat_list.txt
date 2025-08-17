@@ -1,0 +1,2 @@
+file 'B:\Programmierprojekte\twitch-highlights-bot\temp_360_quad_kill_no_clip_fixed.mp4'
+file 'B:\Programmierprojekte\twitch-highlights-bot\temp_out_of_context_daniel_moncada_gear_of_wars_fixed.mp4'

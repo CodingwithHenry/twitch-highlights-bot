@@ -150,7 +150,34 @@ def upload(args, filepath, game):
         initialize_upload(youtube, args, filepath)
     except HttpError as e:
         print(f"An HTTP error {e.resp.status} occurred:\n{e.content}")
+    
+    
 
+
+def upload_short(self, video_file, game, title="Short Video", description="", tags="#Shorts"):
+    youtube = get_authenticated_service(game)
+
+    body = {
+        "snippet": {
+            "title": title,
+            "description": description,
+            "tags": tags.split(","),
+            "categoryId": "20"  # Gaming category
+        },
+        "status": {
+            "privacyStatus": "public"
+        }
+    }
+
+    media = MediaFileUpload(video_file)
+    request = youtube.videos().insert(
+        part="snippet,status",
+        body=body,
+        media_body=media
+    )
+    response = request.execute()
+    print(f"Uploaded Short: {response['id']}")
+    return response
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", required=True, help="Video file to upload")

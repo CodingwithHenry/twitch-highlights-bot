@@ -27,7 +27,7 @@ class App:
         self.clips_downloader.download_top_clips(clips)
 
         # Create video compilation
-        self.video_editor.create_video_compilation(clips, amount)
+        self.video_editor.create_video_compilation(clips, amount, gameTitle=game)
 
         file =transcription()
         # Upload video to Youtube

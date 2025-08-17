@@ -4,12 +4,23 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from PIL import Image, ImageDraw, ImageFont
 from project.config import font_clip_name, font_broadcaster, render_settings
 from project.utils import safe_filename
-
-
+from project.youtube import upload_short
+from asyncio import sleep
+import glob
 class VideoEditor:
     def __init__(self, max_workers=4):
         self.max_workers = max_workers
         self.clips = []
+    def convert_to_vertical(self, input_file, output_file):
+        cmd = [
+            "ffmpeg", "-y",
+            "-i", input_file,
+            "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
+            "-c:a", "copy",
+            output_file
+        ]
+        subprocess.run(cmd, check=True)
+        return output_file
 
     def create_overlay(self, clip_content):
         """Creates a transparent PNG overlay with title & broadcaster name."""
@@ -68,7 +79,7 @@ class VideoEditor:
         self.overlay_video(clip.path, overlay_path, output_path)
         return output_path
 
-    def create_video_compilation(self, clips, amount):
+    def create_video_compilation(self, clips, amount, gameTitle):
         """Processes clips in parallel, then concatenates them."""
         self.clips = clips[:amount]
         temp_files = []
@@ -76,7 +87,9 @@ class VideoEditor:
         # Parallel processing
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             futures = {executor.submit(self.process_clip, clip): clip for clip in self.clips}
-            for future in as_completed(futures):
+            
+            for i, future in enumerate(as_completed(futures)):
+                
                 processed = future.result()
 
                 # Normalize timestamps
@@ -85,16 +98,20 @@ class VideoEditor:
 
                 temp_files.append(fixed)
 
+                # Upload first 2 clips as Shorts
+                if i < 2:
+                    # Optional: convert to vertical if needed
+                    short_file = fixed.replace(".mp4", "_short.mp4")
+                    self.convert_to_vertical(fixed, short_file)  # define this if needed
+                    upload_short(short_file, game=gameTitle, title=f'#Shorts {gameTitle}', tags="#Shorts", description=futures[future].title+' '+futures[future].broadcaster_name, video_file=short_file)
+
         # remove the original processed file to save space
-        try:
-            os.remove(processed)
-        except Exception as e:
-            print(f"Error removing temp file {processed}: {e}")
-        # Create concat list
-        concat_list = "concat_list.txt"
-        with open(concat_list, "w") as f:
-            for file in temp_files:
-                f.write(f"file '{os.path.abspath(file)}'\n")
+        
+            # Create concat list
+            concat_list = "concat_list.txt"
+            with open(concat_list, "w") as f:
+                for file in temp_files:
+                    f.write(f"file '{os.path.abspath(file)}'\n")
 
         # Concatenate without re-encoding
         os.makedirs('files/youtube', exist_ok=True)
@@ -105,13 +122,11 @@ class VideoEditor:
             "-c", "copy", final_output
         ]
         subprocess.run(cmd_concat, check=True)
-
-        # Cleanup
-        for file in temp_files:
+        # Cleanup folder
+        for file in glob.glob("*.mp4"):
             try:
                 os.remove(file)
             except Exception as e:
                 print(f"Error removing file {file}: {e}")
-        os.remove(concat_list)
 
         return final_output
