@@ -20,6 +20,9 @@ jobs:
           ssh -o StrictHostKeyChecking=no henry@85.215.51.216 '
             cd twitch-highlights-bot &&
             git stash &&
-            git pull
-            chmod +x ./run_uploads.sh
+            git pull &&
+            chmod +x ./run_uploads.sh &&
+            source ./venv/bin/activate &&
+            pip install -r requirements.txt &&
+            deactivate
           '
