@@ -37,7 +37,7 @@ Clone this repository:
 git clone https://github.com/viniciusenari/automated-twitch-clips-youtube-channel
 ```
 
-'''
+'''bash
 Install https://ffmpeg.org/download.html on your maschine.
 '''
 
