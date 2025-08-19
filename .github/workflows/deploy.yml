@@ -21,4 +21,5 @@ jobs:
             cd twitch-highlights-bot &&
             git stash &&
             git pull
+            chmod +x ./run_uploads.sh
           '
