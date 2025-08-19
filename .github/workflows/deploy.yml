@@ -13,12 +13,12 @@ jobs:
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}  # add your private key as a GitHub secret
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
       - name: Pull latest code on server
         run: |
-          ssh henry@85.215.51.216 '
+          ssh -o StrictHostKeyChecking=no henry@85.215.51.216 '
             cd twitch-highlights-bot &&
-            git stash  -m "autostash from GitHub Actions" &&
+            git stash &&
             git pull
           '
