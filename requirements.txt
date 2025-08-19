@@ -65,7 +65,6 @@ pyparsing==3.2.1
 python-dateutil==2.9.0.post0
 python-multipart==0.0.20
 pytz==2024.1
-pywin32==308
 PyYAML==6.0.2
 pyzmq==26.2.0
 recurring-ical-events==2.2.1
