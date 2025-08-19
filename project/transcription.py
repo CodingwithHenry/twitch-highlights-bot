@@ -24,7 +24,7 @@ def transcription():
                     f"{end//3600:02.0f}:{(end%3600)//60:02.0f}:{end%60:06.3f}\n")
             f.write(f"{text}\n\n")
 
-    # Step 3: Burn subtitles into the video
+    
     # Step 3: Burn subtitles into the video
     output_file = clip.with_name("video_subtitled.mp4")
     subprocess.run([
