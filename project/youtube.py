@@ -63,6 +63,7 @@ def get_authenticated_service(game):
     return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, credentials=creds)
 
 def upload_thumbnail(self, video_id, file_path):
+        return
         print('Uploading thumbnail...')
         request = self.youtube.thumbnails().set(
             videoId=video_id,
