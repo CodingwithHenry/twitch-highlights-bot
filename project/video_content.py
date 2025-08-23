@@ -3,8 +3,8 @@ from PIL import Image, ImageDraw, ImageFont
 from project.config import font_thumbnail
 from math import floor, sqrt
 from project.twitch_ids_box_art import games_name
-from project.utils import prev_week_saturday_dBY, prev_week_sunday_dBY,  safe_filename
-
+from project.utils import prev_week_saturday_dBY, prev_week_sunday_dBY,  safe_filename ,getShortNumber
+from pathlib import Path
 class VideoContent:
 
     def __init__(self, title, description, tags, category_id, privacy_status, keywords):
@@ -62,7 +62,7 @@ class VideoContentGenerator:
             tags.add(games_name[clip.game_id])
             tags.add(clip.broadcaster_name)
         return list(tags)
-    
+
     def generate_thumbnail(self):
         overlay = Image.new('RGBA', (1280, 720), color = (255,255,255,0))
         d = ImageDraw.Draw(overlay)
@@ -97,3 +97,56 @@ class VideoContentGenerator:
 
         if not os.path.exists('files/youtube'): os.makedirs('files/youtube')
         overlay.save(f'files/youtube/thumbnail.png')
+
+def shortthumbnail( output_path,game):
+        """
+        Adds text to the top half of a short's thumbnail.
+        
+        :param base_image_path: Path to the original thumbnail
+        :param output_path: Path to save the edited thumbnail
+        :param short_number: Number of the short (for text like '#5')
+        """
+        base_image_path = Path("./fonts/shortnail.jpg")
+        output_path = Path(output_path)
+        
+        short_number=getShortNumber(game)
+        # Open image
+        img = Image.open(base_image_path).convert("RGBA")
+        width, height = img.size
+
+        # Create overlay for text
+        overlay = Image.new("RGBA", img.size, (255,255,255,0))
+        draw = ImageDraw.Draw(overlay)
+        
+        # Choose font and size
+        try:
+            font = ImageFont.truetype("arial.ttf", size=int(height*0.08))
+        except:
+            font = ImageFont.load_default()
+
+        lines = ["Get", "High on", f"League #{short_number}"]
+
+        # Vertical start position (5% from top)
+        y = int(height * 0.05)
+
+        for line in lines:
+            bbox = draw.textbbox((0, 0), line, font=font)
+            text_width = bbox[2] - bbox[0]
+            text_height = bbox[3] - bbox[1]
+            x = (width - text_width) // 2  # center horizontally
+
+            # Draw outline
+            outline_color = "black"
+            for dx in [-2, 2]:
+                for dy in [-2, 2]:
+                    draw.text((x+dx, y+dy), line, font=font, fill=outline_color)
+            # Draw main text
+            draw.text((x, y), line, font=font, fill="yellow")
+
+            # Move y down for next line
+            y += text_height + int(height * 0.01)  # 1% vertical spacing
+
+        # Combine overlay with original
+        combined = Image.alpha_composite(img, overlay)
+        combined.convert("RGB").save(output_path)
+        print(f"✅ Thumbnail saved to {output_path}")

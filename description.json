@@ -1,6 +1,7 @@
 {
     "bf": {
         "counter": 2,
+        "shortcounter": 10,
         "titles": [
             "🔥 THE ULTIMATE Battlefield Moments #{n}",
             "BEST Battlefield Highlights You Can’t Miss #{n}",
@@ -42,7 +43,8 @@
         ]
     },
     "lol": {
-        "counter": 1,
+        "counter": 3,
+        "shortcounter": 15,
         "titles": [
             "🔥 THE BEST League of Legends Plays #{n}",
             "LOL FUNNY & EPIC Moments Compilation #{n}",

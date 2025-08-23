@@ -49,13 +49,17 @@ def clip_selector(clip_path):
     return audio_score, motion_score, duration, clip_path
 
 
-def rankClips(clips:list, min_len=20, max_len=30, top_n=10, w_audio=0.5, w_motion=0.5):
+def rankClips(clips: list, min_len=20, max_len=30, top_n=10, w_audio=0.5, w_motion=0.5):
+    """
+    Rank clips based on audio & motion.
+    `clips` should be a list of (clip_obj, path) tuples.
+    """
     scores = []
     
-    for clip in clips:
-        audio, motion, duration, path = clip_selector(clip)
+    for clip_obj, path in clips:
+        audio, motion, duration, _ = clip_selector(path)
         if min_len <= duration <= max_len:
-            scores.append((audio, motion, clip))  # store ClipContent object
+            scores.append((audio, motion, clip_obj, path))  
 
     if not scores:
         return []
@@ -68,8 +72,15 @@ def rankClips(clips:list, min_len=20, max_len=30, top_n=10, w_audio=0.5, w_motio
 
     final_scores = w_audio * audios_norm + w_motion * motions_norm
 
-    ranked = sorted(zip(final_scores, [s[2] for s in scores]), key=lambda x: x[0], reverse=True)
-    return [r[1] for r in ranked[:top_n]]  # returns ClipContent objects
+    ranked = sorted(
+        zip(final_scores, [s[2] for s in scores], [s[3] for s in scores]),
+        key=lambda x: x[0],
+        reverse=True
+    )
+
+    # return list of (clip_obj, path)
+    return [(r[1], r[2]) for r in ranked[:top_n]]
+
 
 
 

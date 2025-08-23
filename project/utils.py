@@ -32,6 +32,23 @@ def get_description(twitchgame: str):
         tags = set(data[game]['tags'])
         return title, description, tags
 
+
+def getShortNumber(twitchgame: str):
+    gameconverter={'BATTLEFIELD 6':'bf','League of Legends':'lol'}
+    
+    game=gameconverter[twitchgame]
+
+    
+    with open("description.json", "r", encoding="utf-8") as f:
+        data = dict(json.load(f))
+        
+        # increases counter for video number
+        data[game]['shortcounter']+=1
+        with open("description.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+    
+    return data[game]['shortcounter']
+
 def safe_filename(title):
     # Replace any non-alphanumeric or underscore/dash with underscore
     filename = re.sub(r'[^A-Za-z0-9_\-]', '_', title)

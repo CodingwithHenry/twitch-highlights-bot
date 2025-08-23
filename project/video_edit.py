@@ -83,7 +83,7 @@ class VideoEditor:
         """Processes clips in parallel, then concatenates them."""
         self.clips = clips[:amount]
         temp_files = []
-
+        processed_clips = []
         # Parallel processing
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             futures = {executor.submit(self.process_clip, clip): clip for clip in self.clips}
@@ -91,16 +91,14 @@ class VideoEditor:
             for i, future in enumerate(as_completed(futures)):
                 
                 processed = future.result()
-
+                clip = futures[future]
                 # Normalize timestamps
                 fixed = processed.replace(".mp4", "_fixed.mp4")
                 self.fix_clip(processed, fixed)
-
+                # store (clip object, path to processed file)
+                processed_clips.append((clip, fixed))
                 temp_files.append(fixed)
 
-                
-        # remove the original processed file to save space
-        
             # Create concat list
             concat_list = "concat_list.txt"
             with open(concat_list, "w") as f:
@@ -108,11 +106,26 @@ class VideoEditor:
                     f.write(f"file '{os.path.abspath(file)}'\n")
 
         #Top n clips based on ranking logic are getting uploaded as short's
-        topClips=rankClips(temp_files, min_len=15, max_len=45, top_n=2)
-        for topclip in topClips:
-            short_file = topclip.replace(".mp4", "_short.mp4")
-            self.convert_to_vertical(topclip, short_file)  # define this if needed
-            upload_short(short_file, game=gameTitle, title=f'#Shorts {gameTitle}', tags="#Shorts"+' ', video_file=short_file)
+        topClips = rankClips(processed_clips, min_len=17, max_len=45, top_n=2)
+
+        for clip, path in topClips:
+            short_file = path.replace(".mp4", "_short.mp4")
+            self.convert_to_vertical(path, short_file)
+            description = (
+            f"Daily League of Legends highlights! 🎮🔥\n"
+            f"Featuring: {clip.broadcaster_name}\n"
+            f"Clip: \"{clip.title}\"\n\n"
+            f"👉 Subscribe for your daily League dose!\n"
+            f"#LeagueOfLegends #Shorts #DailyLeague"
+    )
+            upload_short(
+                short_file,
+                game=gameTitle,
+                title=f'#Shorts {clip.title} by {clip.broadcaster_name} #LeagueofLegends #highlight #twitch',
+                tags="#Shorts,league of Legends, gaming, twitch, highlights ",
+                description=description,
+                video_file=short_file
+    )
 
         # Concatenate without re-encoding
         os.makedirs('files/youtube', exist_ok=True)

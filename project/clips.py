@@ -82,6 +82,8 @@ class ClipsDownloader():
         option.add_argument("--enable-unsafe-swiftshader")  # optional, safe to add
         # Use a temporary user data directory to avoid conflicts
        
+        if os.path.exists(clip.path):
+           return  # Skip download if file already exists
 
         driver = webdriver.Chrome(options=option)
         driver.get(clip.url)

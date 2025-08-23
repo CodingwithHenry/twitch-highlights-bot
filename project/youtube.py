@@ -14,9 +14,10 @@ from google.auth.transport.requests import Request
 import pickle
 import argparse
 from pathlib import Path
+from project.video_content import shortthumbnail
 
 THUMBNAIL_PATH = Path("files") / "youtube" / "thumbnail.png"
-
+SHORTNAIL_PATH = "./files/youtube/shortnail.jpg"
 # HTTP settings
 httplib2.RETRIES = 1
 MAX_RETRIES = 10
@@ -154,7 +155,7 @@ def upload(args, filepath, game):
     
 
 
-def upload_short(self, video_file, game, title="Short Video", description="", tags="#Shorts, #Gaming,Viral,viral shorts, league of legends,lol,pentakill"):
+def upload_short(self, video_file, game, title="Short Video#", description="", tags="#Shorts, #Gaming,Viral,viral shorts, league of legends,lol,pentakill"):
     youtube = get_authenticated_service(game)
 
     body = {
@@ -176,8 +177,22 @@ def upload_short(self, video_file, game, title="Short Video", description="", ta
         media_body=media
     )
     response = request.execute()
+    #thumbnail for shorts but does not work for youtube right now
+    '''shortid = response['id']
+    if SHORTNAIL_PATH:
+        shortthumbnail(SHORTNAIL_PATH, game)
+        print("Uploading thumbnail...")
+        youtube.thumbnails().set(
+            videoId=shortid,
+            media_body=str(SHORTNAIL_PATH)
+        ).execute()
+        print("✅ Thumbnail uploaded!")
+    else:
+        print(f"Thumbnail file not found at {SHORTNAIL_PATH}")'''
     print(f"Uploaded Short: {response['id']}")
     return response
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", required=True, help="Video file to upload")

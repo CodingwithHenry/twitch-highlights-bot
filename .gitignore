@@ -32,6 +32,7 @@ MANIFEST
 *.manifest
 *.spec
 
+client_secrets.json
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
@@ -163,7 +164,7 @@ files
 
 
 # secrets
-
+description.json
 secrets.json
 client_secrets.json
 token.pickle
