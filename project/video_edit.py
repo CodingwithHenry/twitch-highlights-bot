@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageFont
 from project.config import font_clip_name, font_broadcaster, render_settings
 from project.utils import safe_filename
 from project.youtube import upload_short
-from asyncio import sleep
+from project.clipSelector import rankClips
 import glob
 class VideoEditor:
     def __init__(self, max_workers=4):
@@ -13,12 +13,12 @@ class VideoEditor:
         self.clips = []
     def convert_to_vertical(self, input_file, output_file):
         cmd = [
-            "ffmpeg", "-y",
-            "-i", input_file,
-            "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
-            "-c:a", "copy",
-            output_file
-        ]
+    "ffmpeg", "-y",
+    "-i", input_file,
+    "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920",
+    "-c:a", "copy",
+    output_file
+]
         subprocess.run(cmd, check=True)
         return output_file
 
@@ -98,13 +98,7 @@ class VideoEditor:
 
                 temp_files.append(fixed)
 
-                # Upload first 2 clips as Shorts
-                if i < 2:
-                    # Optional: convert to vertical if needed
-                    short_file = fixed.replace(".mp4", "_short.mp4")
-                    self.convert_to_vertical(fixed, short_file)  # define this if needed
-                    upload_short(short_file, game=gameTitle, title=f'#Shorts {gameTitle}', tags="#Shorts", description=futures[future].title+' '+futures[future].broadcaster_name, video_file=short_file)
-
+                
         # remove the original processed file to save space
         
             # Create concat list
@@ -112,6 +106,13 @@ class VideoEditor:
             with open(concat_list, "w") as f:
                 for file in temp_files:
                     f.write(f"file '{os.path.abspath(file)}'\n")
+
+        #Top n clips based on ranking logic are getting uploaded as short's
+        topClips=rankClips(temp_files, min_len=15, max_len=45, top_n=2)
+        for topclip in topClips:
+            short_file = topclip.replace(".mp4", "_short.mp4")
+            self.convert_to_vertical(topclip, short_file)  # define this if needed
+            upload_short(short_file, game=gameTitle, title=f'#Shorts {gameTitle}', tags="#Shorts"+' ', video_file=short_file)
 
         # Concatenate without re-encoding
         os.makedirs('files/youtube', exist_ok=True)
