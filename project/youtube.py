@@ -97,7 +97,7 @@ def initialize_upload(youtube, options, filepath):
     video_id = resumable_upload(insert_request, youtube)
 
     # Upload thumbnail
-    if THUMBNAIL_PATH.exists():
+    '''if THUMBNAIL_PATH.exists():
         print("Uploading thumbnail...")
         youtube.thumbnails().set(
             videoId=video_id,
@@ -105,7 +105,7 @@ def initialize_upload(youtube, options, filepath):
         ).execute()
         print("✅ Thumbnail uploaded!")
     else:
-        print(f"Thumbnail file not found at {THUMBNAIL_PATH}")
+        print(f"Thumbnail file not found at {THUMBNAIL_PATH}")'''
 
     return video_id
 
