@@ -12,13 +12,14 @@ class VideoEditor:
         self.max_workers = max_workers
         self.clips = []
     def convert_to_vertical(self, input_file, output_file):
+        
         cmd = [
-    "ffmpeg", "-y",
-    "-i", input_file,
-    "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920",
-    "-c:a", "copy",
-    output_file
-]
+            "ffmpeg", "-y",
+            "-i", input_file,
+            "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
+            "-c:a", "copy",
+            output_file
+        ]
         subprocess.run(cmd, check=True)
         return output_file
 
