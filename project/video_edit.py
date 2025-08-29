@@ -70,7 +70,10 @@ class VideoEditor:
             "-fflags", "+genpts", "-r", "30",
             output_file
         ]
-        subprocess.run(cmd, check=True)
+        try:
+            subprocess.run(cmd, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Error fixing clip {input_file}: {e}")
         return output_file
 
     def process_clip(self, clip):
