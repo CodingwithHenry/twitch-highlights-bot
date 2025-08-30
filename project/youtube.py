@@ -161,7 +161,7 @@ def upload_short(self, video_file, game, title="Short Video#", description="", t
 
     body = {
         "snippet": {
-            "title": title,
+            "title": title.strip() if title and title.strip() else "Twitch Gaming Highlights",
             "description": description,
             "tags": tags.split(","),
             "categoryId": "20"  # Gaming category
