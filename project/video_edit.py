@@ -122,14 +122,17 @@ class VideoEditor:
             f"👉 Subscribe for your daily League dose!\n"
             f"#LeagueOfLegends #Shorts #DailyLeague"
     )
-            upload_short(
-                short_file,
-                game=gameTitle,
-                title=f'#Shorts {clip.title} by {clip.broadcaster_name} #LeagueofLegends #highlight #twitch',
-                tags="#Shorts,league of Legends, gaming, twitch, highlights ",
-                description=description,
-                video_file=short_file
-    )
+            try:
+                upload_short(
+                    short_file,
+                    game=gameTitle,
+                    title=f'{clip.title} by {clip.broadcaster_name} #LeagueofLegends #highlight #twitch #Shorts #lec',
+                    tags="#Shorts,league of Legends, gaming, twitch, highlights ",
+                    description=description,
+                    video_file=short_file
+                )
+            except:
+                pass # just skip uploading a short when upload fails
 
         # Concatenate without re-encoding
         os.makedirs('files/youtube', exist_ok=True)
