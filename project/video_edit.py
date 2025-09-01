@@ -1,5 +1,4 @@
 import os
-from random import random
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from PIL import Image, ImageDraw, ImageFont
@@ -13,7 +12,7 @@ from collections import deque
 import tempfile
 import numpy as np
 from pydub import AudioSegment
-import shutil
+import random
 
 class VideoEditor:
     def __init__(self, max_workers=4):
