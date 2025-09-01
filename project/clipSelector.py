@@ -49,31 +49,41 @@ def clip_selector(clip_path):
     return audio_score, motion_score, duration, clip_path
 
 
-def rankClips(clips: list, min_len=20, max_len=30, top_n=10, w_audio=0.5, w_motion=0.5):
+def rankClips(clips: list, min_len=20, max_len=30, top_n=10,
+              w_audio=0.32, w_motion=0.48, w_views=0.20):
     """
-    Rank clips based on audio & motion.
+    Rank clips based on audio, motion & view_count.
     `clips` should be a list of (clip_obj, path) tuples.
+    clip_obj must have a `.view_count` field.
     """
     scores = []
     
     for clip_obj, path in clips:
         audio, motion, duration, _ = clip_selector(path)
         if min_len <= duration <= max_len:
-            scores.append((audio, motion, clip_obj, path))  
+            scores.append((audio, motion, clip_obj.view_count, clip_obj, path))  
 
     if not scores:
         return []
 
     audios = np.array([s[0] for s in scores])
     motions = np.array([s[1] for s in scores])
+    views = np.array([s[2] for s in scores])
 
+    # normalize each metric
     audios_norm = audios / audios.max() if audios.max() > 0 else audios
     motions_norm = motions / motions.max() if motions.max() > 0 else motions
+    views_norm = views / views.max() if views.max() > 0 else views
 
-    final_scores = w_audio * audios_norm + w_motion * motions_norm
+    # weighted sum
+    final_scores = (
+        w_audio * audios_norm +
+        w_motion * motions_norm +
+        w_views * views_norm
+    )
 
     ranked = sorted(
-        zip(final_scores, [s[2] for s in scores], [s[3] for s in scores]),
+        zip(final_scores, [s[3] for s in scores], [s[4] for s in scores]),
         key=lambda x: x[0],
         reverse=True
     )

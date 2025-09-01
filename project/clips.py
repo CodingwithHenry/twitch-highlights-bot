@@ -21,7 +21,7 @@ api.auth(client_id, client_secret)
 
 
 class ClipContent:
-    def __init__(self, url, broadcaster_id, broadcaster_name, game_id, title, thumbnail_url, duration, path):
+    def __init__(self, url, broadcaster_id, broadcaster_name, game_id, title, thumbnail_url, duration, view_count, path):
         self.url = url
         self.broadcaster_id = broadcaster_id
         self.broadcaster_name = broadcaster_name
@@ -29,6 +29,7 @@ class ClipContent:
         self.title = title
         self.thumbnail_url = thumbnail_url
         self.duration = duration
+        self.view_count = view_count
         self.path = path
     
     def __str__(self):
@@ -38,6 +39,11 @@ class ClipsExtractor:
     def __init__(self):
         self.clips_content = []
         self.by_game = None
+        
+    def bannedStreamer(streamerName: str):
+        if streamerName in ['k4sen', 'fps_shaka']:
+            return False
+        return True
 
     def get_clips(self, quantity = 10, broadcaster_id = None, game_id = None, languages = []):
         self.by_game = True if game_id else False
@@ -54,7 +60,7 @@ class ClipsExtractor:
         while len(self.clips_content) < quantity:
             response = requests.get('https://api.twitch.tv/helix/clips', params=params, headers=api.headers).json()
             for clip in response['data']:
-                if clip['language'] in languages or languages == []:
+                if (clip['language'] in languages or languages == []) and ClipsExtractor.bannedStreamer(clip['broadcaster_name']):
                     self.clips_content.append(ClipContent(
                         clip['url'],
                         clip['broadcaster_id'],
@@ -63,6 +69,7 @@ class ClipsExtractor:
                         clip['title'],
                         clip['thumbnail_url'],
                         clip['duration'],
+                        clip["view_count"],
                         f'files/clips/{safe_filename(clip["title"])}.mp4'
                     ))
                     if len(self.clips_content) == quantity: break
