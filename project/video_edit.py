@@ -7,10 +7,19 @@ from project.utils import safe_filename
 from project.youtube import upload_short
 from project.clipSelector import rankClips
 import glob
+import cv2
+from collections import deque
+import tempfile
+import numpy as np
+from pydub import AudioSegment
+import shutil
+
 class VideoEditor:
     def __init__(self, max_workers=4):
         self.max_workers = max_workers
         self.clips = []
+        
+        
     def convert_to_vertical(self, input_file, output_file):
         
         cmd = [
@@ -22,6 +31,107 @@ class VideoEditor:
         ]
         subprocess.run(cmd, check=True)
         return output_file
+
+    def lol_to_vertical(self, input_video, output_video, smooth_frames=75, min_contour_area=1000, max_shift=5):
+        """
+        Converts a 16:9 League of Legends video to 9:16 vertical,
+        tracking main action robustly with weighted centroid, max pan speed, and smoothing.
+
+        Args:
+            input_video (str): Path to input 16:9 video.
+            output_video (str): Path to save final 9:16 video.
+            smooth_frames (int): Number of past frames to average for smoothing.
+            min_contour_area (int): Minimum contour area to consider as main action.
+            max_shift (int): Maximum horizontal shift per frame in pixels.
+
+        Returns:
+            str: Path to the final vertical video.
+        """
+        cap = cv2.VideoCapture(input_video)
+        width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps    = cap.get(cv2.CAP_PROP_FPS)
+
+        target_w = int(height * 9 / 16)
+
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        temp_file = os.path.join(tempfile.gettempdir(), "lol_crop.mp4")
+        out = cv2.VideoWriter(temp_file, fourcc, fps, (target_w, height))
+
+        fgbg = cv2.createBackgroundSubtractorMOG2(history=200, varThreshold=50, detectShadows=False)
+
+        current_center_x = width // 2
+        center_history = deque([current_center_x]*smooth_frames, maxlen=smooth_frames)
+
+        while True:
+            ret, frame = cap.read()
+            if not ret: break
+
+            fgmask = fgbg.apply(frame)
+            contours, _ = cv2.findContours(fgmask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            # Filter contours by area
+            valid_contours = [c for c in contours if cv2.contourArea(c) >= min_contour_area]
+
+            # Optional: ignore contours too far from current center (reduce distraction)
+            valid_contours = [
+                c for c in valid_contours
+                if abs((cv2.boundingRect(c)[0] + cv2.boundingRect(c)[2]//2) - current_center_x) < width * 0.4
+            ]
+
+            if valid_contours:
+                # Weighted centroid of all valid contours
+                xs, areas = [], []
+                for c in valid_contours:
+                    x, y, w, h = cv2.boundingRect(c)
+                    xs.append(x + w//2)
+                    areas.append(cv2.contourArea(c))
+                target_center_x = int(np.average(xs, weights=areas))
+            else:
+                target_center_x = current_center_x  # no relevant movement
+
+            # Smooth with moving average
+            center_history.append(target_center_x)
+            target_center_x = int(np.mean(center_history))
+
+            # Limit maximum horizontal shift
+            shift = np.clip(target_center_x - current_center_x, -max_shift, max_shift)
+            current_center_x += shift
+
+            # Define crop boundaries
+            left = max(0, current_center_x - target_w // 2)
+            right = left + target_w
+            if right > width:
+                right = width
+                left = width - target_w
+
+            cropped = frame[:, left:right]
+
+            # Ensure exact size and 3 channels
+            if cropped.shape[1] != target_w:
+                cropped = cv2.resize(cropped, (target_w, height))
+            if len(cropped.shape) == 2:
+                cropped = cv2.cvtColor(cropped, cv2.COLOR_GRAY2BGR)
+            elif cropped.shape[2] != 3:
+                cropped = cv2.cvtColor(cropped, cv2.COLOR_BGRA2BGR)
+
+            try:
+                out.write(cropped)
+            except cv2.error as e:
+                print("⚠️ Skipped frame due to OpenCV error:", e)
+                continue
+
+        cap.release()
+        out.release()
+
+        # Merge original audio
+        subprocess.run([
+            "ffmpeg", "-y", "-i", temp_file, "-i", input_video,
+            "-map", "0:v:0", "-map", "1:a:0", "-c:v", "libx264", "-c:a", "aac",
+            output_video
+        ], check=True)
+
+        return output_video
 
     def create_overlay(self, clip_content):
         """Creates a transparent PNG overlay with title & broadcaster name."""
@@ -45,6 +155,55 @@ class VideoEditor:
         overlay.save(overlay_path)
         return overlay_path
 
+    def add_background_music(self, video_file, music_file, output_file, music_volume_reduction=-23):
+        """
+        Adds background music to a video with reduced volume.
+        
+        Args:
+            video_file (str): Path to input video.
+            music_file (str): Path to background music file (mp3, wav, etc.).
+            output_file (str): Path for saving the final video.
+            music_volume_reduction (int): dB reduction applied to music.
+            
+        Returns:
+            str: Path to final video with mixed audio.
+        """
+
+        # --- Step 1: Extract original audio from video ---
+        temp_audio_file = os.path.join(tempfile.gettempdir(), "video_audio.wav")
+        subprocess.run([
+            "ffmpeg", "-y", "-i", video_file, "-vn",
+            "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2",
+            temp_audio_file
+        ], check=True)
+
+        # --- Step 2: Load audio files ---
+        video_audio = AudioSegment.from_wav(temp_audio_file)
+        music = AudioSegment.from_file(music_file)
+
+        # Extend/trim music to match video length
+        if len(music) < len(video_audio):
+            music = music * (len(video_audio) // len(music) + 1)
+        music = music[:len(video_audio)]
+
+        # Lower music volume
+        music = music + music_volume_reduction
+
+        # --- Step 3: Mix music with video audio ---
+        final_audio = video_audio.overlay(music)
+
+        # --- Step 4: Export combined audio ---
+        combined_audio_file = os.path.join(tempfile.gettempdir(), "combined_audio.wav")
+        final_audio.export(combined_audio_file, format="wav")
+
+        # --- Step 5: Merge combined audio back with video ---
+        subprocess.run([
+            "ffmpeg", "-y", "-i", video_file, "-i", combined_audio_file,
+            "-c:v", "copy", "-map", "0:v:0", "-map", "1:a:0",
+            output_file
+        ], check=True)
+
+        return output_file
     def overlay_video(self, input_video, overlay_image, output_video):
         """Overlays a PNG onto a video using ffmpeg."""
         cmd = [
@@ -110,11 +269,21 @@ class VideoEditor:
                     f.write(f"file '{os.path.abspath(file)}'\n")
 
         #Top n clips based on ranking logic are getting uploaded as short's
-        topClips = rankClips(processed_clips, min_len=17, max_len=45, top_n=2)
+        topClips = rankClips(processed_clips, min_len=20, max_len=60, top_n=2)
 
         for clip, path in topClips:
             short_file = path.replace(".mp4", "_short.mp4")
-            self.convert_to_vertical(path, short_file)
+            vertical_short = short_file.replace(".mp4", "_vertical.mp4")
+            vertical_lol_short = short_file.replace(".mp4", "_vertical_lol.mp4")
+
+            # Step 1: Add background music
+            self.add_background_music(path, "./fonts/testsound.mp3", short_file)
+
+            # Step 2: Convert to letterboxed vertical format
+            self.convert_to_vertical(short_file, vertical_short)
+
+            # Step 3: Apply action crop on ORIGINAL 16:9 video
+            self.lol_to_vertical(short_file, vertical_lol_short)
             description = (
             f"Daily League of Legends highlights! 🎮🔥\n"
             f"Featuring: {clip.broadcaster_name}\n"
@@ -124,12 +293,20 @@ class VideoEditor:
     )
             try:
                 upload_short(
-                    short_file,
+                    vertical_short,
                     game=gameTitle,
                     title=f'{clip.title} by {clip.broadcaster_name} #LeagueofLegends #highlight #twitch #Shorts #lec',
                     tags="#Shorts,league of Legends, gaming, twitch, highlights ",
                     description=description,
-                    video_file=short_file
+                    video_file=vertical_short
+                )
+                upload_short(
+                    vertical_lol_short,
+                    game=gameTitle,
+                    title=f'{clip.title} by {clip.broadcaster_name} #LeagueofLegends #highlight #twitch #Shorts #lec',
+                    tags="#Shorts,league of Legends, gaming, twitch, highlights ",
+                    description=description,
+                    video_file=vertical_lol_short
                 )
             except:
                 pass # just skip uploading a short when upload fails

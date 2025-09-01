@@ -1,3 +1,6 @@
+# ignore playground
+playground/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
