@@ -1,4 +1,5 @@
 import os
+from random import random
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from PIL import Image, ImageDraw, ImageFont
@@ -277,7 +278,16 @@ class VideoEditor:
             vertical_lol_short = short_file.replace(".mp4", "_vertical_lol.mp4")
 
             # Step 1: Add background music
-            self.add_background_music(path, "./fonts/testsound.mp3", short_file)
+            music_folder = "./fonts/"
+
+            # Get a list of all MP3 files in the folder
+            music_files = [f for f in os.listdir(music_folder) if f.endswith(".mp3")]
+
+            # Randomly select one
+            selected_music = os.path.join(music_folder, random.choice(music_files))
+
+            print("Selected music:", selected_music)
+            self.add_background_music(path, selected_music, short_file)
 
             # Step 2: Convert to letterboxed vertical format
             self.convert_to_vertical(short_file, vertical_short)
