@@ -5,6 +5,7 @@ from project.twitch_ids_box_art import games_id
 from project.youtube import upload
 from project.transcription import transcription
 from project.utils import get_description
+from project.titleGen import generateTitleAndThumbnail
 import os
 import glob
 class App:
@@ -30,10 +31,13 @@ class App:
         self.video_editor.create_video_compilation(clips, amount, gameTitle=game)
 
         file =transcription()
+        
+        #use gemini2.5 and imagin to generate title and thumbnail based of the transcription
+        title=generateTitleAndThumbnail()
         # Upload video to Youtube
         self.video_content_generator = VideoContentGenerator(self.clips_extractor)
 
-        title, description, tags = get_description(game)  # load description from description json
+        description, tags = get_description(game)  # load description from description json
         # Create video content
         video_content = VideoContent(
             title=title,
@@ -44,8 +48,7 @@ class App:
             keywords=None
         )
 
-        # Create thumbnail
-        self.video_content_generator.generate_thumbnail()
+        
 
         # Upload video to Youtube
         upload(video_content, file, game)

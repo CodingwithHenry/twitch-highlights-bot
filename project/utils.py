@@ -27,10 +27,10 @@ def get_description(twitchgame: str):
             json.dump(data, f, ensure_ascii=False, indent=4)
 
 
-        title = random.choice(data[game]['titles']).replace('{n}', str(data[game]['counter']))
+        
         description = data[game]['description'].replace('{n}', str(data[game]['counter']))
         tags = set(data[game]['tags'])
-        return title, description, tags
+        return  description, tags
 
 
 def getShortNumber(twitchgame: str):
@@ -61,10 +61,10 @@ def parsetime_rfc(datetime_object):
 def parsetime_dBY(datetime_object):
     return dt.datetime.strftime(datetime_object, '%d %B, %Y')
 
-prev_week_saturday_rfc = parsetime_rfc((dt.datetime.today()- dt.timedelta(1)).replace(hour = 18, minute = 30, second= 0))
+prev_week_saturday_rfc = parsetime_rfc((dt.datetime.today()- dt.timedelta(2)).replace(hour = 18, minute = 30, second= 0))
 
 prev_week_sunday_rfc = parsetime_rfc((dt.datetime.today()- dt.timedelta(3)).replace(hour = 18, minute = 30, second= 0))
 
-prev_week_saturday_dBY = parsetime_dBY((dt.datetime.today()- dt.timedelta(1)).replace(hour=18, minute=30, second=0))
+prev_week_saturday_dBY = parsetime_dBY((dt.datetime.today()- dt.timedelta(2)).replace(hour=18, minute=30, second=0))
 prev_week_sunday_dBY = parsetime_dBY((dt.datetime.today() - dt.timedelta(3)).replace(hour=18, minute=30, second=0))
 

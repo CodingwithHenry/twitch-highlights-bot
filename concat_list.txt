@@ -1,2 +1,3 @@
 file 'B:\Programmierprojekte\twitch-highlights-bot\temp_brohan_impersonating_detdert_yep_fixed.mp4'
-file 'B:\Programmierprojekte\twitch-highlights-bot\temp_trynda_penta_fixed.mp4'
+file 'B:\Programmierprojekte\twitch-highlights-bot\temp_never_doubted_bro_fixed.mp4'
+file 'B:\Programmierprojekte\twitch-highlights-bot\temp_wolf_wird_zu_raidboss_fixed.mp4'

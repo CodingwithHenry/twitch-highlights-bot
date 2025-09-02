@@ -63,7 +63,7 @@ def get_authenticated_service(game):
     return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, credentials=creds)
 
 def upload_thumbnail(self, video_id, file_path):
-        return
+        
         print('Uploading thumbnail...')
         request = self.youtube.thumbnails().set(
             videoId=video_id,
@@ -97,7 +97,7 @@ def initialize_upload(youtube, options, filepath):
     video_id = resumable_upload(insert_request, youtube)
 
     # Upload thumbnail
-    '''if THUMBNAIL_PATH.exists():
+    if THUMBNAIL_PATH.exists():
         print("Uploading thumbnail...")
         youtube.thumbnails().set(
             videoId=video_id,
@@ -105,7 +105,7 @@ def initialize_upload(youtube, options, filepath):
         ).execute()
         print("✅ Thumbnail uploaded!")
     else:
-        print(f"Thumbnail file not found at {THUMBNAIL_PATH}")'''
+        print(f"Thumbnail file not found at {THUMBNAIL_PATH}")
 
     return video_id
 
@@ -158,7 +158,7 @@ def upload(args, filepath, game):
 
 def upload_short(self, video_file, game, title="Short Video#", description="", tags="#Shorts, #Gaming,Viral,league of legends,lol,pentakill"):
     youtube = get_authenticated_service(game)
-
+    return
     body = {
         "snippet": {
             "title": title.strip() if title and title.strip() else "Twitch Gaming Highlights",
