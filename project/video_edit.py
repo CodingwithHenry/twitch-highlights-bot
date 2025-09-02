@@ -155,7 +155,7 @@ class VideoEditor:
         overlay.save(overlay_path)
         return overlay_path
 
-    def add_background_music(self, video_file, music_file, output_file, music_volume_reduction=-23):
+    def add_background_music(self, video_file, output_file, music_volume_reduction=-23):
         """
         Adds background music to a video with reduced volume.
         
@@ -168,7 +168,14 @@ class VideoEditor:
         Returns:
             str: Path to final video with mixed audio.
         """
+        music_folder = "./fonts/"
 
+        # Get a list of all MP3 files in the folder
+        music_files = [f for f in os.listdir(music_folder) if f.endswith(".mp3")]
+
+        # Randomly select one
+        music_file = os.path.join(music_folder, random.choice(music_files))
+        
         # --- Step 1: Extract original audio from video ---
         temp_audio_file = os.path.join(tempfile.gettempdir(), "video_audio.wav")
         subprocess.run([
@@ -242,6 +249,32 @@ class VideoEditor:
         self.overlay_video(clip.path, overlay_path, output_path)
         return output_path
 
+    def add_cta_animation(self, input_video, output_video, start_time=15, cta_mp4="./fonts/cta_subscribe1.mp4", scale_factor=0.45):
+        """
+        Overlays a CTA .webm animation onto a video using FFmpeg.
+
+        Args:
+            input_video (str): Path to input video.
+            cta_webm (str): Path to the CTA .webm animation (must have transparency).
+            output_video (str): Path to save the video with CTA.
+            start_time (int/float): Seconds when the CTA should appear.
+        """
+        # FFmpeg command to overlay
+        cmd = [
+        "ffmpeg", "-y",
+        "-i", input_video,
+        "-itsoffset", str(start_time), "-i", cta_mp4,
+        "-filter_complex",
+        f"[1:v]scale=iw*{scale_factor}:ih*{scale_factor},colorkey=0x00FF00:0.3:0.1[cta];"
+        f"[0:v][cta]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2",
+        "-c:a", "copy",
+        "-c:v", "libx264",
+        "-pix_fmt", "yuv420p",
+        output_video
+    ]
+
+        subprocess.run(cmd, check=True)
+        return output_video
     def create_video_compilation(self, clips, amount, gameTitle):
         """Processes clips in parallel, then concatenates them."""
         self.clips = clips[:amount]
@@ -277,22 +310,24 @@ class VideoEditor:
             vertical_lol_short = short_file.replace(".mp4", "_vertical_lol.mp4")
 
             # Step 1: Add background music
-            music_folder = "./fonts/"
+            self.add_background_music(path, short_file)
 
-            # Get a list of all MP3 files in the folder
-            music_files = [f for f in os.listdir(music_folder) if f.endswith(".mp3")]
 
-            # Randomly select one
-            selected_music = os.path.join(music_folder, random.choice(music_files))
-
-            print("Selected music:", selected_music)
-            self.add_background_music(path, selected_music, short_file)
+            #Still testing what format has better "stay to watch" ratio
 
             # Step 2: Convert to letterboxed vertical format
             self.convert_to_vertical(short_file, vertical_short)
 
             # Step 3: Apply action crop on ORIGINAL 16:9 video
             self.lol_to_vertical(short_file, vertical_lol_short)
+            
+            
+            vertical_short_cta = vertical_short.replace(".mp4", "_cta.mp4")
+            vertical_lol_short_cta = vertical_lol_short.replace(".mp4", "_cta.mp4")
+            
+            self.add_cta_animation(vertical_short, vertical_short_cta, start_time=clip.duration/2)
+            self.add_cta_animation(vertical_lol_short, vertical_lol_short_cta, start_time=clip.duration/2)
+
             description = (
             f"Daily League of Legends highlights! 🎮🔥\n"
             f"Featuring: {clip.broadcaster_name}\n"
@@ -302,24 +337,25 @@ class VideoEditor:
     )
             try:
                 upload_short(
-                    vertical_short,
-                    game=gameTitle,
-                    title=f'{clip.title} by {clip.broadcaster_name} #LeagueofLegends #highlight #twitch #Shorts #lec',
-                    tags="#Shorts,league of Legends, gaming, twitch, highlights ",
-                    description=description,
-                    video_file=vertical_short
-                )
+        vertical_short_cta,
+        game=gameTitle,
+        title=f'{clip.title} by {clip.broadcaster_name} #LeagueofLegends #highlight #twitch #Shorts #lec',
+        tags="#Shorts,league of Legends, gaming, twitch, highlights ",
+        description=description,
+        video_file=vertical_short_cta
+    )
                 upload_short(
-                    vertical_lol_short,
+                    vertical_lol_short_cta,
                     game=gameTitle,
                     title=f'{clip.title} by {clip.broadcaster_name} #LeagueofLegends #highlight #twitch #Shorts #lec',
                     tags="#Shorts,league of Legends, gaming, twitch, highlights ",
                     description=description,
-                    video_file=vertical_lol_short
+                    video_file=vertical_lol_short_cta
                 )
             except:
                 pass # just skip uploading a short when upload fails
 
+        
         # Concatenate without re-encoding
         os.makedirs('files/youtube', exist_ok=True)
         final_output = "files/youtube/video.mp4"

@@ -156,7 +156,7 @@ def upload(args, filepath, game):
     
 
 
-def upload_short(self, video_file, game, title="Short Video#", description="", tags="#Shorts, #Gaming,Viral,viral shorts, league of legends,lol,pentakill"):
+def upload_short(self, video_file, game, title="Short Video#", description="", tags="#Shorts, #Gaming,Viral,league of legends,lol,pentakill"):
     youtube = get_authenticated_service(game)
 
     body = {
