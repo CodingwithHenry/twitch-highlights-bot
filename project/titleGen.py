@@ -83,6 +83,6 @@ display them in a epic fight setting against a elemental dragon(erath,fire,air,p
         print("Number of images generated does not match the requested number.")
 
     for n, generated_image in enumerate(result.generated_images):
-        generated_image.image.save(f"./files/youtube/thumbnail{n}.png")
+        generated_image.image.save(f"./files/youtube/thumbnail.png")
     
     return title

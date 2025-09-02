@@ -16,7 +16,7 @@ import argparse
 from pathlib import Path
 from project.video_content import shortthumbnail
 
-THUMBNAIL_PATH = Path("files") / "youtube" / "thumbnail.png"
+THUMBNAIL_PATH = "./files/youtube/thumbnail.png"
 SHORTNAIL_PATH = "./files/youtube/shortnail.jpg"
 # HTTP settings
 httplib2.RETRIES = 1
