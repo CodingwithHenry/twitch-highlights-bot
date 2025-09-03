@@ -306,26 +306,14 @@ class VideoEditor:
 
         for clip, path in topClips:
             short_file = path.replace(".mp4", "_short.mp4")
-            vertical_short = short_file.replace(".mp4", "_vertical.mp4")
             vertical_lol_short = short_file.replace(".mp4", "_vertical_lol.mp4")
-
             # Step 1: Add background music
             self.add_background_music(path, short_file)
 
-
-            #Still testing what format has better "stay to watch" ratio
-
-            # Step 2: Convert to letterboxed vertical format
-            self.convert_to_vertical(short_file, vertical_short)
-
-            # Step 3: Apply action crop on ORIGINAL 16:9 video
             self.lol_to_vertical(short_file, vertical_lol_short)
-            
-            
-            vertical_short_cta = vertical_short.replace(".mp4", "_cta.mp4")
+
             vertical_lol_short_cta = vertical_lol_short.replace(".mp4", "_cta.mp4")
-            
-            self.add_cta_animation(vertical_short, vertical_short_cta, start_time=clip.duration/2)
+
             self.add_cta_animation(vertical_lol_short, vertical_lol_short_cta, start_time=clip.duration/2)
 
             description = (
@@ -336,14 +324,7 @@ class VideoEditor:
             f"#LeagueOfLegends #Shorts #DailyLeague"
     )
             try:
-                upload_short(
-        vertical_short_cta,
-        game=gameTitle,
-        title=f'{clip.title} by {clip.broadcaster_name} #LeagueofLegends #highlight #twitch #Shorts #lec',
-        tags="#Shorts,league of Legends, gaming, twitch, highlights ",
-        description=description,
-        video_file=vertical_short_cta
-    )
+                
                 upload_short(
                     vertical_lol_short_cta,
                     game=gameTitle,
