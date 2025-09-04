@@ -49,7 +49,7 @@ class App:
         )
 
         
-
+        
         # Upload video to Youtube
         upload(video_content, file, game)
 

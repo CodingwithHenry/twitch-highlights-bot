@@ -327,33 +327,29 @@ class VideoEditor:
             
             self.add_cta_animation(vertical_short, vertical_short_cta, start_time=clip.duration/2)
             self.add_cta_animation(vertical_lol_short, vertical_lol_short_cta, start_time=clip.duration/2)
-
+            print(f"Uploading short for clip: {clip.title} by {clip.broadcaster_name}")
             description = (
             f"Daily League of Legends highlights! 🎮🔥\n"
             f"Featuring: {clip.broadcaster_name}\n"
             f"Clip: \"{clip.title}\"\n\n"
             f"👉 Subscribe for your daily League dose!\n"
             f"#LeagueOfLegends #Shorts #DailyLeague"
-    )
+    )       
+            title = f"{clip.title} by {clip.broadcaster_name}"
+            if len(title) > 95:  # leave room for hashtags
+                title = title[:95]
             try:
-                upload_short(
-        vertical_short_cta,
-        game=gameTitle,
-        title=f'{clip.title} by {clip.broadcaster_name} #LeagueofLegends #highlight #twitch #Shorts #lec',
-        tags="#Shorts,league of Legends, gaming, twitch, highlights ",
-        description=description,
-        video_file=vertical_short_cta
-    )
+               
                 upload_short(
                     vertical_lol_short_cta,
                     game=gameTitle,
                     title=f'{clip.title} by {clip.broadcaster_name} #LeagueofLegends #highlight #twitch #Shorts #lec',
-                    tags="#Shorts,league of Legends, gaming, twitch, highlights ",
+                    tags="Shorts,league of Legends, gaming, twitch, highlights",
                     description=description,
                     video_file=vertical_lol_short_cta
                 )
-            except:
-                pass # just skip uploading a short when upload fails
+            except Exception as e:
+                print("Error during upload:", e)
 
         
         # Concatenate without re-encoding
