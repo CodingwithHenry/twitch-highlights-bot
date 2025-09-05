@@ -14,6 +14,7 @@ import numpy as np
 from pydub import AudioSegment
 import random
 from project.utils import UPLOADS
+from datetime import datetime, timedelta ,timezone
 class VideoEditor:
     def __init__(self, max_workers=4):
         self.max_workers = max_workers
@@ -289,6 +290,18 @@ class VideoEditor:
         return output_video
     def create_video_compilation(self, clips, amount, gameTitle):
         """Processes clips in parallel, then concatenates them."""
+        start_time_utc = datetime.now(timezone.utc)
+        # Shift to UTC+2
+        start_time_utc2 = start_time_utc + timedelta(hours=2)
+        num_clips = 4
+        interval_minutes = 15
+        timestamps = []
+        for i in range(num_clips):
+            clip_time = start_time_utc2 + timedelta(minutes=i*interval_minutes)
+            iso_time = clip_time.isoformat(timespec='seconds')
+            timestamps.append(iso_time)
+        
+        
         self.clips = clips[:amount]
         temp_files = []
         processed_clips = []
@@ -312,12 +325,24 @@ class VideoEditor:
             with open(concat_list, "w") as f:
                 for file in temp_files:
                     f.write(f"file '{os.path.abspath(file)}'\n")
-
+        TOPNCLIPS=4
         #Top n clips based on ranking logic are getting uploaded as short's
-        topClips = rankClips(processed_clips, min_len=20, max_len=60, top_n=4)
-        print( "Anzahl Top Clips",len(topClips))
-        for clip, path in topClips:
+        topClips = rankClips(processed_clips, min_len=20, max_len=60, top_n=TOPNCLIPS)
+        #Create timestamps for upload timing
+        start_time_utc = datetime.now(timezone.utc)
+        # Shift to UTC+2
+        start_time_utc2 = start_time_utc + timedelta(hours=2)
+        num_clips = TOPNCLIPS
+        interval_minutes = 15
+        timestamps = []
+        for i in range(num_clips):
+            clip_time = start_time_utc2 + timedelta(minutes=i*interval_minutes)
+            iso_time = clip_time.isoformat(timespec='seconds')
+            timestamps.append(iso_time)
             
+        print( "Anzahl Top Clips",len(topClips))
+        for (clip, path),scheduleTime in zip(topClips,timestamps):
+
             short_file = path.replace(".mp4", "_short.mp4")
             vertical_short = short_file.replace(".mp4", "_vertical.mp4")
             vertical_lol_short = short_file.replace(".mp4", "_vertical_lol.mp4")
@@ -359,7 +384,8 @@ class VideoEditor:
                     title=title,
                     tags="league of Legends, GamingShort,LeagueGameplay,ff20,arcane,riotgames ",
                     description=description,
-                    video_file=vertical_lol_short_cta
+                    video_file=vertical_lol_short_cta,
+                    publishtime=scheduleTime
                 )
             except Exception as e:
                 print("Error during upload:", e)
