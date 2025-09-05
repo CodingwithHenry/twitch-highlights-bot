@@ -27,6 +27,7 @@ def transcription():
     
     # Step 3: Burn subtitles into the video
     output_file = clip.with_name("video_subtitled.mp4")
+    output_file = clip # as long as transcription is not needed, just return original file
     return output_file
     
     subprocess.run([
