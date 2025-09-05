@@ -159,7 +159,7 @@ class VideoEditor:
         overlay.save(overlay_path)
         return overlay_path
 
-    def add_background_music(self, video_file, output_file, music_volume_reduction=-23):
+    def add_background_music(self, video_file, output_file, music_volume_reduction=-20):
         """
         Adds background music to a video with reduced volume.
         
@@ -314,7 +314,7 @@ class VideoEditor:
                     f.write(f"file '{os.path.abspath(file)}'\n")
 
         #Top n clips based on ranking logic are getting uploaded as short's
-        topClips = rankClips(processed_clips, min_len=20, max_len=60, top_n=2)
+        topClips = rankClips(processed_clips, min_len=20, max_len=60, top_n=4)
         print( "Anzahl Top Clips",len(topClips))
         for clip, path in topClips:
             
