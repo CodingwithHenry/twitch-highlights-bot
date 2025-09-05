@@ -40,7 +40,9 @@ def transcription():
     "-c:a", "copy",
     "-avoid_negative_ts", "make_zero",
     str(output_file).replace("\\", "/")
-])
+],
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.STDOUT)
 
 
     

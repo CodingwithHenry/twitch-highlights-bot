@@ -29,7 +29,9 @@ class VideoEditor:
             "-c:a", "copy",
             output_file
         ]
-        subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True,
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.STDOUT)
         return output_file
 
     def lol_to_vertical(self, input_video, output_video, smooth_frames=75, min_contour_area=1000, max_shift=5):
@@ -129,7 +131,9 @@ class VideoEditor:
             "ffmpeg", "-y", "-i", temp_file, "-i", input_video,
             "-map", "0:v:0", "-map", "1:a:0", "-c:v", "libx264", "-c:a", "aac",
             output_video
-        ], check=True)
+        ], check=True,
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.STDOUT)
 
         return output_video
 
@@ -182,7 +186,9 @@ class VideoEditor:
             "ffmpeg", "-y", "-i", video_file, "-vn",
             "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2",
             temp_audio_file
-        ], check=True)
+        ], check=True,
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.STDOUT)
 
         # --- Step 2: Load audio files ---
         video_audio = AudioSegment.from_wav(temp_audio_file)
@@ -224,7 +230,9 @@ class VideoEditor:
             "-c:a", "copy",            # keep audio untouched
             output_video
         ]
-        subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True,
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.STDOUT)
 
     def fix_clip(self, input_file, output_file):
         """Normalizes timestamps & framerate to avoid DTS errors."""
@@ -237,7 +245,9 @@ class VideoEditor:
             output_file
         ]
         try:
-            subprocess.run(cmd, check=True)
+            subprocess.run(cmd, check=True,
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             print(f"Error fixing clip {input_file}: {e}")
         return output_file
@@ -273,7 +283,9 @@ class VideoEditor:
         output_video
     ]
 
-        subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True,
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.STDOUT)
         return output_video
     def create_video_compilation(self, clips, amount, gameTitle):
         """Processes clips in parallel, then concatenates them."""
@@ -360,7 +372,9 @@ class VideoEditor:
             "-f", "concat", "-safe", "0", "-i", concat_list,
             "-c", "copy", final_output
         ]
-        subprocess.run(cmd_concat, check=True)
+        subprocess.run(cmd_concat, check=True,
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.STDOUT)
         # Cleanup folder
         for file in glob.glob("*.mp4"):
             try:
