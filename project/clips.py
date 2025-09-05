@@ -9,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from project.twitch_api import TwitchAPI
 from project.utils import client_id, client_secret, prev_week_saturday_rfc, prev_week_sunday_rfc, safe_filename
 from project.twitch_ids_box_art import games_id
+from project.clipSelector import classify_clip
 import re
 
 
@@ -106,6 +107,9 @@ class ClipsDownloader():
 
             with open(clip.path, 'wb') as f:
                 f.write(r.content)
+                if classify_clip("clip_classifier_3d.pth", clip.path, num_frames=20) == 0:
+                    os.remove(clip.path)
+                    print(f'Removed low quality clip: {clip.title}')
         else:
             print(f'Failed to download clip from thumb: {clip.thumbnail_url}')
 
@@ -129,7 +133,8 @@ class ClipsDownloader():
                 self.download_clip_thumb(clip)
             else:
                 self.download_clip_driver(clip)
-            self.download_thumbnail(clip)
+            #Not needed right now
+            #self.download_thumbnail(clip)
     
     def download_thumbnail(self, clip):
         r = requests.get(clip.thumbnail_url)

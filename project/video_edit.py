@@ -344,7 +344,7 @@ class VideoEditor:
                     vertical_lol_short_cta,
                     game=gameTitle,
                     title=f'{clip.title} by {clip.broadcaster_name} #LeagueofLegends #highlight #twitch #Shorts #lec',
-                    tags="Shorts,league of Legends, gaming, twitch, highlights",
+                    tags="league of Legends, GamingShort,LeagueGameplay,ff20,arcane,riotgames ",
                     description=description,
                     video_file=vertical_lol_short_cta
                 )

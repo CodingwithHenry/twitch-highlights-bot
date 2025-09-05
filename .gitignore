@@ -173,3 +173,4 @@ client_secrets.json
 token.pickle
 bf6_token.pickle
 lol_token.pickle
+clip_classifier_3d.pth

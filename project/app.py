@@ -16,6 +16,7 @@ class App:
         
     def run(self, game, amount, languages = []):
         
+        amount+=5  # extra clips to account for possible removals
         print(f"Creating video compilation with game: {game}, amount: {amount}, languages: {languages}")
         game_id = games_id[game]
         
