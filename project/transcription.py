@@ -27,6 +27,8 @@ def transcription():
     
     # Step 3: Burn subtitles into the video
     output_file = clip.with_name("video_subtitled.mp4")
+    return output_file
+    
     subprocess.run([
     "ffmpeg", "-y",
     "-fflags", "+genpts",
@@ -41,6 +43,6 @@ def transcription():
 ])
 
 
-    print("✅ Subtitles burned into video!")
-    return output_file
+    
+    
 
