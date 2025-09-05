@@ -4,7 +4,7 @@ from project.video_content import VideoContentGenerator, VideoContent
 from project.twitch_ids_box_art import games_id
 from project.youtube import upload
 from project.transcription import transcription
-from project.utils import get_description
+from project.utils import get_description, UPLOADS
 from project.titleGen import generateTitleAndThumbnail
 import os
 import glob
@@ -30,29 +30,35 @@ class App:
 
         # Create video compilation
         self.video_editor.create_video_compilation(clips, amount, gameTitle=game)
+        if UPLOADS:
+            file =transcription()
+            
+            #use gemini2.5 and imagin to generate title and thumbnail based of the transcription
+            
+            title=generateTitleAndThumbnail()
+            # Upload video to Youtube
+            self.video_content_generator = VideoContentGenerator(self.clips_extractor)
 
-        file =transcription()
-        
-        #use gemini2.5 and imagin to generate title and thumbnail based of the transcription
-        title=generateTitleAndThumbnail()
-        # Upload video to Youtube
-        self.video_content_generator = VideoContentGenerator(self.clips_extractor)
+            description, tags = get_description(game)  # load description from description json
+            # Create video content
+            video_content = VideoContent(
+                title=title,
+                description=description,
+                tags=tags,
+                category_id='20',  # Gaming
+                privacy_status='public',
+                keywords=None
+            )
 
-        description, tags = get_description(game)  # load description from description json
-        # Create video content
-        video_content = VideoContent(
-            title=title,
-            description=description,
-            tags=tags,
-            category_id='20',  # Gaming
-            privacy_status='public',
-            keywords=None
-        )
-
-        
-        
-        # Upload video to Youtube
-        upload(video_content, file, game)
+            
+            
+            # Upload video to Youtube
+            
+            upload(video_content, file, game)
+        else:
+            
+            print("Uploads are disabled on Windows for testing purposes.")
+            exit(0)
 
 
 # delete clips and thumbnails etc.        

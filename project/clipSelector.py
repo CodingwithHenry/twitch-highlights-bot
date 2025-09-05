@@ -1,13 +1,12 @@
 import cv2
 import librosa
-from pathlib import Path
 import numpy as np
-import subprocess
-import sys
 from project.utils import  client_id , client_secret
-import os
-from project.clips import api
-
+import torch
+import torchvision.transforms as transforms
+import cv2
+import torch.nn as nn
+import torchvision.models.video as video_models
 
 
 
@@ -95,11 +94,7 @@ def rankClips(clips: list, min_len=20, max_len=30, top_n=10,
 NUM_FRAMES = 20 
 
 def classify_clip(model_path, clip_path, num_frames=8):
-    import torch
-    import torchvision.transforms as transforms
-    import cv2
-    import torch.nn as nn
-    import torchvision.models.video as video_models
+    
     
     device = "cuda" if torch.cuda.is_available() else "cpu"
     
@@ -144,6 +139,7 @@ def classify_clip(model_path, clip_path, num_frames=8):
     with torch.no_grad():
         output = model(frames)
         pred = output.argmax(dim=1).item()
+    print(f"Clip {clip_path} classified as {pred}")
     return pred
 
 

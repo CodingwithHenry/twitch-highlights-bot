@@ -5,6 +5,14 @@ load_dotenv()
 import re
 import json
 import random
+import platform
+
+# Detect OS
+if platform.system() == "Windows":
+    UPLOADS = False
+else:
+    UPLOADS = True
+
 client_id = os.environ['CLIENT_ID']
 client_secret = os.environ['CLIENT_SECRET']
 

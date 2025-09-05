@@ -107,9 +107,8 @@ class ClipsDownloader():
 
             with open(clip.path, 'wb') as f:
                 f.write(r.content)
-                if classify_clip("clip_classifier_3d.pth", clip.path, num_frames=20) == 0:
-                    os.remove(clip.path)
-                    print(f'Removed low quality clip: {clip.title}')
+            
+                
         else:
             print(f'Failed to download clip from thumb: {clip.thumbnail_url}')
 
@@ -133,6 +132,14 @@ class ClipsDownloader():
                 self.download_clip_thumb(clip)
             else:
                 self.download_clip_driver(clip)
+                
+        for clip in clips:
+                if os.path.exists(clip.path):
+                    classification = classify_clip('clip_classifier_3d.pth', clip.path, 20)
+                    if classification == 0:
+                        print(f'Removed clip: {clip.title} (not interesting)')
+                        os.remove(clip.path)
+                        clips.remove(clip)
             #Not needed right now
             #self.download_thumbnail(clip)
     

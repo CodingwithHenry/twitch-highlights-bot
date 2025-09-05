@@ -13,7 +13,7 @@ import tempfile
 import numpy as np
 from pydub import AudioSegment
 import random
-
+from project.utils import UPLOADS
 class VideoEditor:
     def __init__(self, max_workers=4):
         self.max_workers = max_workers
@@ -315,8 +315,9 @@ class VideoEditor:
 
         #Top n clips based on ranking logic are getting uploaded as short's
         topClips = rankClips(processed_clips, min_len=20, max_len=60, top_n=2)
-
+        print( "Anzahl Top Clips",len(topClips))
         for clip, path in topClips:
+            
             short_file = path.replace(".mp4", "_short.mp4")
             vertical_short = short_file.replace(".mp4", "_vertical.mp4")
             vertical_lol_short = short_file.replace(".mp4", "_vertical_lol.mp4")
@@ -349,13 +350,13 @@ class VideoEditor:
     )       
             title = f"{clip.title} by {clip.broadcaster_name}"
             if len(title) > 95:  # leave room for hashtags
-                title = title[:95]
+                title = title[:]
             try:
-               
+               if UPLOADS:
                 upload_short(
                     vertical_lol_short_cta,
                     game=gameTitle,
-                    title=f'{clip.title} by {clip.broadcaster_name} #LeagueofLegends #highlight #twitch #Shorts #lec',
+                    title=title,
                     tags="league of Legends, GamingShort,LeagueGameplay,ff20,arcane,riotgames ",
                     description=description,
                     video_file=vertical_lol_short_cta
