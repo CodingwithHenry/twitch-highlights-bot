@@ -167,7 +167,7 @@ def upload_short(self, video_file, game, publishtime, title="Short Video#", desc
             "categoryId": "20"  # Gaming category
         },
         "status": {
-            "privacyStatus": "public",
+            "privacyStatus": "private",
             'publishAt': publishtime  # UTC time
         }
     }

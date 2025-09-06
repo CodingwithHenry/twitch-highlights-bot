@@ -331,7 +331,7 @@ class VideoEditor:
         #Create timestamps for upload timing
         start_time_utc = datetime.now(timezone.utc)
         # Shift to UTC+2
-        start_time_utc2 = start_time_utc + timedelta(hours=2)
+        start_time_utc2 = start_time_utc + timedelta(hours=3)
         num_clips = TOPNCLIPS
         interval_minutes = 15
         timestamps = []
@@ -378,7 +378,7 @@ class VideoEditor:
                 title = title[:]
             try:
                if UPLOADS:
-                upload_short(
+                    upload_short(
                     vertical_lol_short_cta,
                     game=gameTitle,
                     title=title,
@@ -386,7 +386,10 @@ class VideoEditor:
                     description=description,
                     video_file=vertical_lol_short_cta,
                     publishtime=scheduleTime
-                )
+                    )
+               else:
+                   print("Uploads are disabled on Windows for testing purposes.")
+
             except Exception as e:
                 print("Error during upload:", e)
 
