@@ -331,7 +331,7 @@ class VideoEditor:
         #Create timestamps for upload timing
         start_time_utc = datetime.now(timezone.utc)
         # Shift to UTC+2
-        start_time_utc2 = start_time_utc + timedelta(hours=3)
+        start_time_utc2 = start_time_utc + timedelta(hours=2)
         num_clips = TOPNCLIPS
         interval_minutes = 15
         timestamps = []
