@@ -62,7 +62,7 @@ def generateTitleAndThumbnail():
     {'\n- '.join(selected_champions)}
 make the characters stick to their lore and personalities
 
-display them in a epic fight setting against a elemental dragon(erath,fire,air,poison,electric), or just horders of minions/bad guys in summoners rift, alternatively let them fight against each other with their minion armies behind them
+or just horders of minions/bad guys in summoners rift, alternatively let them fight against each other with their minion armies behind them. there is a purple lindworm with multiple heads in the background
 -the battleground can be a field, summoners rift, a forest, a castle, near a river, in the ice or any other iconic location from the League of Legends universe.
 ''',
 

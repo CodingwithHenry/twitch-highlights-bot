@@ -257,7 +257,11 @@ class VideoEditor:
         """Processes a single clip and returns its output path."""
         overlay_path = self.create_overlay(clip)
         output_path = f"temp_{safe_filename(clip.title)}.mp4"
-        self.overlay_video(clip.path, overlay_path, output_path)
+        try:
+            self.overlay_video(clip.path, overlay_path, output_path)
+        except Exception as e:
+            return clip.path  # fallback to original if overlay fails
+            print(f"Error processing clip {clip.title}: {e}")
         return output_path
 
     def add_cta_animation(self, input_video, output_video, start_time=15, cta_mp4="./fonts/cta_subscribe1.mp4", scale_factor=0.45):
