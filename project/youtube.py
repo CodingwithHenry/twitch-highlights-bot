@@ -56,7 +56,7 @@ def get_authenticated_service(game):
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, YOUTUBE_UPLOAD_SCOPE)
-            creds = flow.run_local_server(port=0, access_type="offline", prompt="consent")
+            creds = flow.run_local_server( access_type="offline", prompt="consent")
         with open(token_file, 'wb') as token:
             pickle.dump(creds, token)
 

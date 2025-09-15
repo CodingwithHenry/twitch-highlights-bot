@@ -380,6 +380,7 @@ class VideoEditor:
             title = f"{clip.title} by {clip.broadcaster_name}"
             if len(title) > 95:  # leave room for hashtags
                 title = title[:]
+            title += " #LeagueofLegends #highlight #twitch #Shorts #lec"
             try:
                if UPLOADS:
                     upload_short(
