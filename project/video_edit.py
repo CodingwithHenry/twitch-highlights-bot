@@ -403,10 +403,13 @@ class VideoEditor:
         os.makedirs('files/youtube', exist_ok=True)
         final_output = "files/youtube/video.mp4"
         cmd_concat = [
-            "ffmpeg", "-y",
-            "-f", "concat", "-safe", "0", "-i", concat_list,
-            "-c", "copy", final_output
-        ]
+    "ffmpeg", "-y",
+    "-f", "concat", "-safe", "0", "-i", concat_list,
+    "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+    "-c:a", "aac", "-ar", "48000", "-ac", "2",
+    "-pix_fmt", "yuv420p",
+    final_output
+]
         subprocess.run(cmd_concat, check=True,
     stdout=subprocess.DEVNULL,
     stderr=subprocess.STDOUT)
