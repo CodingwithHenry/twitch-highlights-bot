@@ -22,19 +22,43 @@ class VideoEditor:
         
         
     def convert_to_vertical(self, input_file, output_file):
-        
+        print("Converting to vertical format with 10% top/bottom padding...", input_file)
         cmd = [
             "ffmpeg", "-y",
             "-i", input_file,
-            "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
+            # Step 1: scale to fit width (1080)
+            # Step 2: pad vertically — add 10% top and bottom
+            "-vf",
+            "scale=1080:-1:force_original_aspect_ratio=decrease,"
+            "pad=1080:ih*1.2:0:(oh-ih)/2,scale=1080:1920",
             "-c:a", "copy",
             output_file
         ]
         subprocess.run(cmd, check=True,
-    stdout=subprocess.DEVNULL,
-    stderr=subprocess.STDOUT)
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT)
         return output_file
+    
+    def convert_to_vertical_bf(self,input_file, output_file):
+        filter_complex = (
+        # Background: scale to fill height and then crop width to 1080
+        "[0:v]scale=-1:1920, crop=1080:1920, gblur=sigma=25[bg];"
+        # Foreground: crop 40% width (center) and scale to 1080x1920
+        "[0:v]crop=iw*0.4:ih:iw*0.3:0,scale=1100:1490[fg];"
+        # Overlay foreground on blurred background
+        "[bg][fg]overlay=(W-w)/2:(H-h)/2"
+    )
 
+        cmd = [
+            "ffmpeg", "-y",
+            "-i", input_file,
+            "-filter_complex", filter_complex,
+            "-c:a", "copy",
+            output_file
+        ]
+
+        subprocess.run(cmd, check=True)
+        return output_file
     def lol_to_vertical(self, input_video, output_video, smooth_frames=75, min_contour_area=1000, max_shift=5):
         """
         Converts a 16:9 League of Legends video to 9:16 vertical,
@@ -263,6 +287,7 @@ class VideoEditor:
             return clip.path  # fallback to original if overlay fails
             print(f"Error processing clip {clip.title}: {e}")
         return output_path
+    
 
     def add_cta_animation(self, input_video, output_video, start_time=15, cta_mp4="./fonts/cta_subscribe1.mp4", scale_factor=0.45):
         """
@@ -292,7 +317,123 @@ class VideoEditor:
     stdout=subprocess.DEVNULL,
     stderr=subprocess.STDOUT)
         return output_video
-    def create_video_compilation(self, clips, amount, gameTitle):
+    def create_video_compilation_BF(self, clips, amount, gameTitle):
+        """Processes clips in parallel, then concatenates them."""
+        start_time_utc = datetime.now(timezone.utc)
+        # Shift to UTC+2
+        start_time_utc2 = start_time_utc + timedelta(hours=2)
+        num_clips = 10
+        interval_minutes = 15
+        timestamps = []
+        for i in range(num_clips):
+            clip_time = start_time_utc2 + timedelta(minutes=i*interval_minutes)
+            iso_time = clip_time.isoformat(timespec='seconds')
+            timestamps.append(iso_time)
+        
+        
+        self.clips = clips[:amount]
+        temp_files = []
+        processed_clips = []
+        # Parallel processing
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            futures = {executor.submit(self.process_clip, clip): clip for clip in self.clips}
+            
+            for i, future in enumerate(as_completed(futures)):
+                
+                processed = future.result()
+                clip = futures[future]
+                # Normalize timestamps
+                fixed = processed.replace(".mp4", "_fixed.mp4")
+                self.fix_clip(processed, fixed)
+                # store (clip object, path to processed file)
+                processed_clips.append((clip, fixed))
+                temp_files.append(fixed)
+
+            # Create concat list
+            concat_list = "concat_list.txt"
+            with open(concat_list, "w") as f:
+                for file in temp_files:
+                    f.write(f"file '{os.path.abspath(file)}'\n")
+        TOPNCLIPS=10
+        #Top n clips based on ranking logic are getting uploaded as short's
+        topClips = rankClips(processed_clips, min_len=20, max_len=60, top_n=TOPNCLIPS)
+        #Create timestamps for upload timing
+        start_time_utc = datetime.now(timezone.utc)
+        # Shift to UTC+2
+        start_time_utc2 = start_time_utc + timedelta(hours=2)
+        num_clips = TOPNCLIPS
+        interval_minutes = 15
+        timestamps = []
+        for i in range(num_clips):
+            clip_time = start_time_utc2 + timedelta(minutes=i*interval_minutes)
+            iso_time = clip_time.isoformat(timespec='seconds')
+            timestamps.append(iso_time)
+            
+        print( "Anzahl Top Clips",len(topClips))
+        for (clip, path),scheduleTime in zip(topClips,timestamps):
+
+            short_file = path.replace(".mp4", "_short.mp4")
+            vertical_short = short_file.replace(".mp4", "_vertical.mp4")
+            vertical_lol_short = short_file.replace(".mp4", "_vertical_lol.mp4")
+
+            # Step 1: Add background music
+            #self.add_background_music(path, short_file)
+            self.convert_to_vertical_bf(path, vertical_short)
+
+            print(f"Uploading short for clip: {clip.title} by {clip.broadcaster_name}")
+            description = (
+            f"Daily Battlefield 6 Clips! \n"
+            f"Featuring: {clip.broadcaster_name}\n"
+            f"Clip: \"{clip.title}\"\n\n"
+            f"👉 Subscribe for your daily Battlefield dose!\n"
+            f"#Battlefield6 #Shorts #DailyBattlefield"
+    )       
+            title = f"{clip.title} by {clip.broadcaster_name}"
+            if len(title) > 95:  # leave room for hashtags
+                title = title[:]
+            title += " #Battlefield6 #highlight #twitch #Shorts #shooter"
+            try:
+               if UPLOADS:
+                    upload_short(
+                   vertical_short,
+                    game=gameTitle,
+                    title=title,
+                    tags="battlefield 6, GamingShort,BattlefieldGameplay,ffps,BF6,shooter ",
+                    description=description,
+                    video_file=vertical_short,
+                    publishtime=scheduleTime
+                    )
+               else:
+                   print("Uploads are disabled on Windows for testing purposes.")
+
+            except Exception as e:
+                print("Error during upload:", e)
+
+        
+        # Concatenate without re-encoding
+        os.makedirs('files/youtube', exist_ok=True)
+        final_output = "files/youtube/video.mp4"
+        cmd_concat = [
+    "ffmpeg", "-y",
+    "-f", "concat", "-safe", "0", "-i", concat_list,
+    "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+    "-c:a", "aac", "-ar", "48000", "-ac", "2",
+    "-pix_fmt", "yuv420p",
+    final_output
+]
+        subprocess.run(cmd_concat, check=True,
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.STDOUT)
+        # Cleanup folder
+        for file in glob.glob("*.mp4"):
+            try:
+                os.remove(file)
+            except Exception as e:
+                print(f"Error removing file {file}: {e}")
+
+        return final_output
+    
+    def create_video_compilation_lol(self, clips, amount, gameTitle):
         """Processes clips in parallel, then concatenates them."""
         start_time_utc = datetime.now(timezone.utc)
         # Shift to UTC+2

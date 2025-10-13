@@ -124,7 +124,7 @@ class ClipsDownloader():
         else:
             print(f'Failed to download clip from thumb: {clip.thumbnail_url}')
     
-    def download_top_clips(self, clips):
+    def download_top_clips(self, clips,game):
         for i in range(len(clips)):
             print(f'Downloading clip {i+1}/{len(clips)}')
             clip = clips[i]
@@ -132,8 +132,9 @@ class ClipsDownloader():
                 self.download_clip_thumb(clip)
             else:
                 self.download_clip_driver(clip)
-                
-        for clip in clips:
+
+        if game=="League of Legends":#sort clips when game is league
+            for clip in clips:
                 if os.path.exists(clip.path):
                     classification = classify_clip('clip_classifier_3d.pth', clip.path, 20)
                     if classification == 0:

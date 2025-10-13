@@ -26,16 +26,22 @@ class App:
             
 
         # Download clips
-        self.clips_downloader.download_top_clips(clips)
+        self.clips_downloader.download_top_clips(clips,game)
 
         # Create video compilation
-        self.video_editor.create_video_compilation(clips, amount, gameTitle=game)
+        if game=="BATTLEFIELD 6":
+            file = self.video_editor.create_video_compilation_BF(clips, amount, gameTitle=game)
+        elif game=="League of Legends":
+            file = self.video_editor.create_video_compilation_lol(clips, amount, gameTitle=game)
+        else:
+            print("Game not supported for video compilation.")
+            return None
         if UPLOADS:
             file =transcription()
             
             #use gemini2.5 and imagin to generate title and thumbnail based of the transcription
             
-            title=generateTitleAndThumbnail()
+            title=generateTitleAndThumbnail(game)
             # Upload video to Youtube
             self.video_content_generator = VideoContentGenerator(self.clips_extractor)
 
@@ -50,10 +56,6 @@ class App:
                 keywords=None
             )
 
-            
-            
-            # Upload video to Youtube
-            
             upload(video_content, file, game)
         else:
             

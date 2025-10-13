@@ -9,7 +9,7 @@ import platform
 
 # Detect OS
 if platform.system() == "Windows":
-    UPLOADS = False
+    UPLOADS = True
 else:
     UPLOADS = True
 
@@ -69,10 +69,10 @@ def parsetime_rfc(datetime_object):
 def parsetime_dBY(datetime_object):
     return dt.datetime.strftime(datetime_object, '%d %B, %Y')
 
-prev_week_saturday_rfc = parsetime_rfc((dt.datetime.today()- dt.timedelta(2)).replace(hour = 9, minute = 00, second= 0))
+prev_week_saturday_rfc = parsetime_rfc((dt.datetime.today()- dt.timedelta(0)).replace(hour = 9, minute = 00, second= 0))
 
-prev_week_sunday_rfc = parsetime_rfc((dt.datetime.today()- dt.timedelta(3)).replace(hour = 9, minute = 00, second= 0))
+prev_week_sunday_rfc = parsetime_rfc((dt.datetime.today()- dt.timedelta(1)).replace(hour = 17, minute = 00, second= 0))
 
-prev_week_saturday_dBY = parsetime_dBY((dt.datetime.today()- dt.timedelta(2)).replace(hour=9, minute=00, second=0))
-prev_week_sunday_dBY = parsetime_dBY((dt.datetime.today() - dt.timedelta(3)).replace(hour=9, minute=00, second=0))
+prev_week_saturday_dBY = parsetime_dBY((dt.datetime.today()- dt.timedelta(0)).replace(hour=9, minute=00, second=0))
+prev_week_sunday_dBY = parsetime_dBY((dt.datetime.today() - dt.timedelta(1)).replace(hour=17, minute=00, second=0))
 

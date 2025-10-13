@@ -6,7 +6,7 @@ import json
 import random
 
 
-def generateTitleAndThumbnail():
+def generateTitleAndThumbnail(game):
 
     load_dotenv()
     # Configure the API key
@@ -32,7 +32,8 @@ def generateTitleAndThumbnail():
 
     # Generate content
     response = model.generate_content(prompt)
-
+    if game == 'BATTLEFIELD 6':
+        return response.text.strip()+" - Battlefield 6 Highlight's"
     # Extract the title
     title = response.text.strip()+" - League of Legends Highlight's"
     
