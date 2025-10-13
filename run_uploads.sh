@@ -10,5 +10,6 @@ source "$VENV_PATH/bin/activate"
 
 # Run second game, ignore errors
 python "$SCRIPT_PATH" --game "League of Legends" --amount 30 --languages en de  fr || echo "League of Legends failed"
+python "$SCRIPT_PATH" --game "BATTLEFIELD 6" --amount 30 --languages en  || echo "BATTLEFIELD 6 failed"
 
 deactivate
