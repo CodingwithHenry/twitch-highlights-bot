@@ -322,7 +322,7 @@ class VideoEditor:
         start_time_utc = datetime.now(timezone.utc)
         # Shift to UTC+2
         start_time_utc2 = start_time_utc + timedelta(hours=2)
-        num_clips = 10
+        num_clips = 5
         interval_minutes = 15
         timestamps = []
         for i in range(num_clips):
@@ -354,7 +354,7 @@ class VideoEditor:
             with open(concat_list, "w") as f:
                 for file in temp_files:
                     f.write(f"file '{os.path.abspath(file)}'\n")
-        TOPNCLIPS=10
+        TOPNCLIPS=5
         #Top n clips based on ranking logic are getting uploaded as short's
         topClips = rankClips(processed_clips, min_len=20, max_len=60, top_n=TOPNCLIPS)
         #Create timestamps for upload timing
