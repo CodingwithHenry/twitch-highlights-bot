@@ -42,7 +42,7 @@ class ClipsExtractor:
         self.by_game = None
         
     def bannedStreamer(streamerName: str):
-        if streamerName in ['k4sen', 'fps_shaka']:
+        if streamerName in ['k4sen', 'fps_shaka','Caedral']:
             return False
         return True
 
